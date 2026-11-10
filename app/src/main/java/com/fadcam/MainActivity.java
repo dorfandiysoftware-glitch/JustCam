@@ -854,7 +854,6 @@ public class MainActivity extends AppCompatActivity {
         View current = touchedView;
         while (current != null) {
             if (current instanceof HorizontalScrollView) return true;
-            if (current.getId() == R.id.tutorial_scroll) return true;
             // The mode switcher is included with <include id="mode_switcher">,
             // which REPLACES the layout's own root id — check both.
             if (current.getId() == R.id.mode_switcher || current.getId() == R.id.mode_switcher_root) return true;

@@ -1316,12 +1316,6 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             items.add(OptionItem.withLigature("action_open_with", ctx.getString(R.string.video_menu_open_with),
                     "open_in_new"));
         }
-        // New: Upload to FadDrive (coming soon) — badge only, no helper line
-        if (!isImage) {
-            items.add(OptionItem.withLigatureBadge("action_upload_faddrive",
-                    ctx.getString(R.string.video_menu_upload_faddrive, "Upload to FadDrive"), "cloud",
-                    ctx.getString(R.string.remote_coming_soon_badge), R.drawable.badge_background_green, true, null));
-        }
         items.add(OptionItem.withLigature("action_delete", ctx.getString(R.string.video_menu_del), "delete"));
 
         String resultKey = "video_actions:"
@@ -1334,9 +1328,6 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             if (id == null)
                 return;
             switch (id) {
-                case "action_upload_faddrive":
-                    Toast.makeText(ctx, R.string.remote_toast_coming_soon, Toast.LENGTH_SHORT).show();
-                    break;
                 case "action_save":
                     showSaveOptionsSheet(videoItem, ctx);
                     break;

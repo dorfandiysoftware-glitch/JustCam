@@ -126,31 +126,10 @@ public class HomeSidebarFragment extends DialogFragment {
             closeButton.setOnClickListener(v -> dismiss());
         }
 
-        // Profiles row
-        View profilesRow = view.findViewById(R.id.row_profiles);
-        if (profilesRow != null) {
-            profilesRow.setOnClickListener(v -> {
-                showProfilesComingSoon();
-                dismiss();
-            });
-        }
-
-        // What's New row
-        View whatsNewRow = view.findViewById(R.id.row_whats_new);
-        if (whatsNewRow != null) {
-            // Show badge if feature not yet seen
-            TextView whatsNewBadge = view.findViewById(R.id.badge_whats_new);
-            if (whatsNewBadge != null) {
-                boolean showBadge = com.fadcam.ui.utils.NewFeatureManager.shouldShowBadge(requireContext(), "whats_new");
-                whatsNewBadge.setVisibility(showBadge ? View.VISIBLE : View.GONE);
-            }
-            
-            whatsNewRow.setOnClickListener(v -> {
-                openWhatsNew();
-                // Mark badge as seen when clicked
-                com.fadcam.ui.utils.NewFeatureManager.markFeatureAsSeen(requireContext(), "whats_new");
-                dismiss();
-            });
+        // Upstream-only rows are hidden in JustCam
+        for (int hiddenId : new int[]{R.id.row_profiles, R.id.row_whats_new}) {
+            View hidden = view.findViewById(hiddenId);
+            if (hidden != null) hidden.setVisibility(View.GONE);
         }
 
         // Tips row
@@ -265,21 +244,8 @@ public class HomeSidebarFragment extends DialogFragment {
             );
         }
 
-        // Discord branding row
         View discordRow = view.findViewById(R.id.row_discord_branding);
-        if (discordRow != null) {
-            com.fadcam.Utils.attachPressScale(discordRow);
-            discordRow.setOnClickListener(v -> {
-                try {
-                    Intent intent = new Intent(Intent.ACTION_VIEW,
-                        Uri.parse("https://discord.gg/kvAZvdkuuN"));
-                    startActivity(intent);
-                } catch (Exception e) {
-                    FLog.w("HomeSidebar", "Failed to open Discord link", e);
-                }
-            });
-        }
-
+        if (discordRow != null) discordRow.setVisibility(View.GONE);
     }
 
     @Override

@@ -3507,12 +3507,10 @@ public class RecordsFragment extends BaseFragment implements
             btnActionSelectAll.setOnClickListener(v -> toggleSelectAllVisibleItems());
         }
         if (btnActionBatchSave != null) {
-            btnActionBatchSave.setOnClickListener(v -> Toast.makeText(requireContext(),
-                    getString(R.string.records_batch_coming_soon), Toast.LENGTH_SHORT).show());
+            btnActionBatchSave.setVisibility(View.GONE);
         }
         if (btnActionBatchFaditor != null) {
-            btnActionBatchFaditor.setOnClickListener(v -> Toast.makeText(requireContext(),
-                    getString(R.string.records_batch_coming_soon), Toast.LENGTH_SHORT).show());
+            btnActionBatchFaditor.setVisibility(View.GONE);
         }
         if (btnActionBatchDelete != null) {
             btnActionBatchDelete.setOnClickListener(v -> {

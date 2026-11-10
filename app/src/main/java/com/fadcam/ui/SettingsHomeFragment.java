@@ -69,7 +69,7 @@ public class SettingsHomeFragment extends Fragment {
 
         // Request focus on first settings row for D-pad navigation (TV support)
         root.post(() -> {
-            View firstFocusable = findFirstFocusableView(root.findViewById(R.id.group_readme));
+            View firstFocusable = findFirstFocusableView(root.findViewById(R.id.group_video_quick));
             if (firstFocusable != null) {
                 firstFocusable.requestFocus();
             }
@@ -420,18 +420,6 @@ public class SettingsHomeFragment extends Fragment {
         bindRow(root, R.id.group_screen_recording, () -> openSubFragment(new com.fadcam.fadrec.ui.ScreenRecordingSettingsFragment()));
         bindRow(root, R.id.group_storage, () -> openSubFragment(new StorageSettingsFragment()));
         bindRow(root, R.id.group_security, () -> openSubFragment(new SecuritySettingsFragment()));
-        bindRow(root, R.id.group_thermal_guardian, () -> {
-            android.widget.Toast.makeText(requireContext(), R.string.mini_app_coming_soon_desc, android.widget.Toast.LENGTH_SHORT).show();
-        });
-        bindRow(root, R.id.group_audio_vision, () -> {
-            android.widget.Toast.makeText(requireContext(), R.string.mini_app_coming_soon_desc, android.widget.Toast.LENGTH_SHORT).show();
-        });
-        bindRow(root, R.id.group_scheduled_recording, () -> {
-            android.widget.Toast.makeText(requireContext(), R.string.mini_app_coming_soon_desc, android.widget.Toast.LENGTH_SHORT).show();
-        });
-        bindRow(root, R.id.group_profiles, () -> {
-            android.widget.Toast.makeText(requireContext(), R.string.mini_app_coming_soon_desc, android.widget.Toast.LENGTH_SHORT).show();
-        });
         bindRow(root, R.id.group_automation, () -> openSubFragment(new AutomationSettingsFragment()));
         bindRow(root, R.id.group_widgets, () -> openSubFragment(new ShortcutsSettingsFragment()));
         bindRow(root, R.id.group_notifications, () -> openSubFragment(new NotificationSettingsFragment()));
@@ -442,21 +430,6 @@ public class SettingsHomeFragment extends Fragment {
         // App section rows (onboarding/auto-update/debug) are wired in wireAppInlineRows()
         bindRow(root, R.id.group_watermark_quick, () -> openSubFragment(new WatermarkSettingsFragment()));
         bindRow(root, R.id.group_about, () -> openSubFragment(new AboutFragment()));
-        bindRow(root, R.id.group_review, () -> launchReview());
-        bindRow(root, R.id.group_readme, () -> openReadmeDialog());
-
-        // Tutorial YouTube CTA
-        View tutorialYt = root.findViewById(R.id.group_tutorials_youtube);
-        if (tutorialYt != null) {
-            tutorialYt.setOnClickListener(v -> {
-                try {
-                    startActivity(new android.content.Intent(android.content.Intent.ACTION_VIEW,
-                        android.net.Uri.parse("https://www.youtube.com/@fadseclab")));
-                } catch (Exception e) {
-                    FLog.w("SettingsHome", "Could not open YouTube", e);
-                }
-            });
-        }
 
         // Trash section
         com.fadcam.SharedPreferencesManager prefs = com.fadcam.SharedPreferencesManager.getInstance(requireContext());
@@ -489,8 +462,6 @@ public class SettingsHomeFragment extends Fragment {
             });
         }
 
-        // Promo card — whole card opens App Store
-        bindRow(root, R.id.group_ios_promo, () -> openUrl("https://apps.apple.com/app/id6778121848"));
     }
 
     private void openUrl(String url) {
@@ -511,47 +482,18 @@ public class SettingsHomeFragment extends Fragment {
         OverlayNavUtil.show(requireActivity(), fragment, fragment.getClass().getSimpleName());
     }
 
-    /** Launch Play Store review intent. */
-    private void launchReview() {
-        try {
-            android.net.Uri uri = android.net.Uri.parse("market://details?id=" + requireContext().getPackageName());
-            android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
-            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NO_HISTORY |
-                    android.content.Intent.FLAG_ACTIVITY_NEW_DOCUMENT |
-                    android.content.Intent.FLAG_ACTIVITY_MULTIPLE_TASK);
-            startActivity(intent);
-        } catch (Exception e) {
-            // Fallback to web
-            try {
-                android.net.Uri uri = android.net.Uri.parse("https://play.google.com/store/apps/details?id=" + requireContext().getPackageName());
-                android.content.Intent intent = new android.content.Intent(android.content.Intent.ACTION_VIEW, uri);
-                startActivity(intent);
-            } catch (Exception ignore) {}
-        }
-    }
-
-    /** Open the README dialog. */
-    private void openReadmeDialog() {
-        new ReadmeBottomSheetFragment().show(getChildFragmentManager(), "readme");
-    }
-
     /** Refresh inline value TextViews in settings rows (e.g. resolution subtitle). */
     private void refreshAppInlineValues(View root) {
         android.widget.TextView vOn = root.findViewById(R.id.value_onboarding);
-        android.widget.TextView vAuto = root.findViewById(R.id.value_auto_update);
         android.widget.TextView vDebug = root.findViewById(R.id.value_debug_logging);
         com.fadcam.SharedPreferencesManager prefs = com.fadcam.SharedPreferencesManager.getInstance(requireContext());
         if (vOn != null) { vOn.setText(prefs.isShowOnboarding() ? getString(R.string.universal_enable) : getString(R.string.universal_disable)); }
-        boolean auto = prefs.sharedPreferences.getBoolean("auto_update_check_enabled", true);
-        if (vAuto != null) { vAuto.setText(auto ? getString(R.string.universal_enable) : getString(R.string.universal_disable)); }
         if (vDebug != null) { vDebug.setText(prefs.isDebugLoggingEnabled() ? getString(R.string.universal_enable) : getString(R.string.universal_disable)); }
     }
 
     private void wireAppInlineRows(View root) {
         View rowOnboarding = root.findViewById(R.id.group_onboarding);
         if (rowOnboarding != null) { rowOnboarding.setOnClickListener(v -> showOnboardingSwitchSheet()); }
-        View rowAutoUpdate = root.findViewById(R.id.group_auto_update);
-        if (rowAutoUpdate != null) { rowAutoUpdate.setOnClickListener(v -> showAutoUpdateSwitchSheet()); }
         View rowDebug = root.findViewById(R.id.group_debug_logging);
         if (rowDebug != null) {
             rowDebug.setOnClickListener(v -> {
@@ -580,23 +522,7 @@ public class SettingsHomeFragment extends Fragment {
         sheet.show(getParentFragmentManager(), "onboarding_switch_sheet");
     }
 
-    private void showAutoUpdateSwitchSheet() {
-        final String resultKey = "picker_result_auto_update";
-        com.fadcam.SharedPreferencesManager prefs = com.fadcam.SharedPreferencesManager.getInstance(requireContext());
-        boolean enabled = prefs.sharedPreferences.getBoolean("auto_update_check_enabled", true);
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (k, b) -> {
-            if (b.containsKey(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SWITCH_STATE)) {
-                boolean state = b.getBoolean(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SWITCH_STATE);
-                prefs.sharedPreferences.edit().putBoolean("auto_update_check_enabled", state).apply();
-                refreshAppInlineValues(requireView());
-            }
-        });
-        String helper = getString(R.string.note_auto_update_check);
-        com.fadcam.ui.picker.PickerBottomSheetFragment sheet = com.fadcam.ui.picker.PickerBottomSheetFragment.newInstanceWithSwitch(
-                getString(R.string.setting_auto_update_check_title), new java.util.ArrayList<>(), null, resultKey, helper,
-                getString(R.string.setting_auto_update_check_title), enabled);
-        sheet.show(getParentFragmentManager(), "auto_update_switch_sheet");
-    }
+
 
     private void showDebugLoggingSwitchSheet() {
         final String resultKey = "picker_result_debug_logging";
