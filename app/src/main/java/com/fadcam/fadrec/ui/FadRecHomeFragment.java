@@ -1911,12 +1911,7 @@ public class FadRecHomeFragment extends HomeFragment {
                 // STREAM_ONLY UI ("Unlimited" label, no storage deduction) is only meaningful
                 // when the remote server is actually active.  If the server is off we always
                 // behave like STREAM_AND_SAVE so the UI stays accurate.
-                boolean serverActive =
-                    com.fadcam.streaming.RemoteStreamManager.getInstance().isStreamingEnabled();
-                com.fadcam.streaming.RemoteStreamManager.StreamingMode mode =
-                    sharedPreferencesManager.getStreamingMode();
-                isStreamOnlyMode = serverActive &&
-                    (mode == com.fadcam.streaming.RemoteStreamManager.StreamingMode.STREAM_ONLY);
+                isStreamOnlyMode = false;
             } catch (Exception e) {
                 FLog.e(TAG, "Error checking streaming mode", e);
             }

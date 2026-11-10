@@ -31,8 +31,6 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
                 return createHomeFragment();
             case 1:
                 return new RecordsFragment();
-            case 2:
-                return new RemoteFragment();
             case 4:
                 // Phase 1: Use new SettingsHomeFragment (legacy fragment accessible from inside)
                 return new SettingsHomeFragment();

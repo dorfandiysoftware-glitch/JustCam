@@ -694,13 +694,7 @@ public class ScreenRecordingService extends Service {
             // this once prevents a stale SharedPreference from deleting a recording that was
             // made without an active server.
             try {
-                boolean serverOn = com.fadcam.streaming.RemoteStreamManager.getInstance().isStreamingEnabled();
-                com.fadcam.streaming.RemoteStreamManager.StreamingMode sessionMode =
-                    sharedPreferencesManager.getStreamingMode();
-                isStreamOnlySession = serverOn &&
-                    (sessionMode == com.fadcam.streaming.RemoteStreamManager.StreamingMode.STREAM_ONLY);
-                FLog.d(TAG, "Session stream-only flag: " + isStreamOnlySession
-                    + " (serverOn=" + serverOn + ", mode=" + sessionMode + ")");
+                isStreamOnlySession = false;
             } catch (Exception e) {
                 FLog.e(TAG, "Failed to determine streaming mode at session start", e);
                 isStreamOnlySession = false;
@@ -735,15 +729,6 @@ public class ScreenRecordingService extends Service {
                 sharedPreferencesManager.setScreenRecordingState(ScreenRecordingState.IN_PROGRESS.name());
             });
             
-            // Notify RemoteStreamManager for potential streaming
-            if (outputFile != null) {
-                try {
-                    com.fadcam.streaming.RemoteStreamManager.getInstance().startRecording(outputFile);
-                    FLog.i(TAG, "🎬 RemoteStreamManager notified: screen recording started");
-                } catch (Exception e) {
-                    FLog.e(TAG, "Failed to notify RemoteStreamManager", e);
-                }
-            }
             
         } catch (IllegalStateException e) {
             FLog.e(

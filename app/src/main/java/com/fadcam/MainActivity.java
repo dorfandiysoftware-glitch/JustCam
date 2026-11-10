@@ -29,7 +29,6 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
 import com.fadcam.ui.RecordsFragment;
-import com.fadcam.ui.RemoteFragment;
 import com.fadcam.ui.HomeFragment;
 import com.fadcam.ui.SettingsHomeFragment;
 import com.fadcam.ui.utils.NewFeatureManager;
@@ -278,32 +277,6 @@ public class MainActivity extends AppCompatActivity {
                 return;
             }
             
-            // Handle Remote badge
-            boolean shouldShowRemoteBadge = NewFeatureManager.shouldShowBadge(this, "remote");
-            FLog.d("MainActivity", "updateFeatureBadgeVisibility: shouldShowRemoteBadge=" + shouldShowRemoteBadge);
-            
-            if (shouldShowRemoteBadge) {
-                // Show badge on Remote nav item
-                try {
-                    com.google.android.material.badge.BadgeDrawable badge = 
-                        bottomNavigationView.getOrCreateBadge(R.id.navigation_remote);
-                    badge.setVisible(true);
-                    badge.setText("NEW"); // Show "NEW" text instead of number
-                    badge.setBackgroundColor(0xFF4CAF50); // Green background
-                    badge.setBadgeTextColor(0xFFFFFFFF); // White text color
-                    FLog.d("MainActivity", "Badge shown for remote");
-                } catch (Exception e) {
-                    FLog.e("MainActivity", "Error creating badge", e);
-                }
-            } else {
-                // Remove badge from Remote nav item
-                try {
-                    bottomNavigationView.removeBadge(R.id.navigation_remote);
-                    FLog.d("MainActivity", "Badge removed for remote");
-                } catch (Exception e) {
-                    FLog.e("MainActivity", "Error removing badge", e);
-                }
-            }
             
             // Handle Settings Nav Badge (separate from watermark option inside settings)
             boolean shouldShowSettingsNavBadge = NewFeatureManager.shouldShowBadge(this, "settings_nav");
@@ -663,8 +636,6 @@ public class MainActivity extends AppCompatActivity {
                 applyHomeNavIcon();
             } else if (itemId == R.id.navigation_records) {
                 targetPosition = 1;
-            } else if (itemId == R.id.navigation_remote) {
-                targetPosition = 2;
             } else if (itemId == R.id.navigation_settings) {
                 targetPosition = 4;
             }
@@ -2189,9 +2160,6 @@ public class MainActivity extends AppCompatActivity {
             case 1:
                 newFragment = new RecordsFragment();
                 break;
-            case 2:
-                newFragment = new RemoteFragment();
-                break;
             case 4:
                 newFragment = new com.fadcam.ui.SettingsHomeFragment();
                 break;
@@ -2245,7 +2213,6 @@ public class MainActivity extends AppCompatActivity {
         switch (position) {
             case 0: return R.id.navigation_home;
             case 1: return R.id.navigation_records;
-            case 2: return R.id.navigation_remote;
             case 4: return R.id.navigation_settings;
             default: return -1;
         }

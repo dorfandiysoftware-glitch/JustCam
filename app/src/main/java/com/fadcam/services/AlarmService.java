@@ -21,7 +21,6 @@ import androidx.core.app.NotificationCompat;
 import com.fadcam.Constants;
 import com.fadcam.MainActivity;
 import com.fadcam.R;
-import com.fadcam.streaming.RemoteStreamManager;
 
 import java.io.File;
 
@@ -50,7 +49,6 @@ public class AlarmService extends Service {
     private NotificationManager notificationManager;
     private Handler handler;
     private HandlerThread handlerThread;
-    private RemoteStreamManager streamManager;
     
     private boolean isAlarmRinging = false;
     private String currentAlarmSound = "office_phone.mp3";
@@ -62,7 +60,6 @@ public class AlarmService extends Service {
         super.onCreate();
         FLog.d(TAG, "AlarmService created");
         
-        streamManager = RemoteStreamManager.getInstance();
         notificationManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
         
         // Create notification channel (required for Android 8+)
@@ -192,12 +189,6 @@ public class AlarmService extends Service {
             
             isAlarmRinging = false;
             
-            // CRITICAL: Update RemoteStreamManager so status JSON reflects alarm stopped
-            // Without this, dashboard shows stale "RINGING" state after alarm auto-stops
-            if (streamManager != null) {
-                streamManager.setAlarmRinging(false);
-                FLog.i(TAG, "✅ RemoteStreamManager alarm state updated to false");
-            }
             
             com.fadcam.Utils.stopForegroundCompat(this, true); // Remove notification
             

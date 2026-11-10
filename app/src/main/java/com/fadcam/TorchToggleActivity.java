@@ -14,7 +14,6 @@ import com.fadcam.dualcam.service.DualCameraRecordingService;
 import com.fadcam.services.RecordingService;
 import com.fadcam.services.TorchService;
 import com.fadcam.SharedPreferencesManager;
-import com.fadcam.streaming.RemoteStreamManager;
 import com.fadcam.utils.ServiceUtils;
 
 import java.util.Random;
@@ -30,19 +29,8 @@ public class TorchToggleActivity extends Activity {
             SharedPreferencesManager sharedPreferencesManager = SharedPreferencesManager.getInstance(this);
             Intent intent;
 
-            // If streaming is active, route to the active recording service (controls camera torch)
-            RemoteStreamManager streamManager = RemoteStreamManager.getInstance();
-            if (streamManager.isStreamingEnabled()) {
-                boolean dualRunning = ServiceUtils.isServiceRunning(this, DualCameraRecordingService.class)
-                        || (sharedPreferencesManager.getCameraSelection() != null
-                        && sharedPreferencesManager.getCameraSelection().isDual());
-                intent = new Intent(this, dualRunning ? DualCameraRecordingService.class : RecordingService.class);
-                intent.setAction(Constants.INTENT_ACTION_TOGGLE_RECORDING_TORCH);
-            } else {
-                // If not streaming, use TorchService
-                intent = new Intent(this, TorchService.class);
-                intent.setAction(Constants.INTENT_ACTION_TOGGLE_TORCH);
-            }
+            intent = new Intent(this, TorchService.class);
+            intent.setAction(Constants.INTENT_ACTION_TOGGLE_TORCH);
 
             // Start the appropriate service
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

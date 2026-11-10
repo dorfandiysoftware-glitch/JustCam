@@ -7,13 +7,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.widget.ImageView;
 
-import com.fadcam.ui.WatchMainActivity;
 import com.fadcam.utils.RuntimeCompat;
 
 /**
  * Simple splash screen activity showing the FadSecLab flag centered.
  * Uses a short delay, then routes to the appropriate main activity:
- * - Wear OS: {@link WatchMainActivity} (minimal watch UI)
  * - Phone/tablet: {@link MainActivity}
  */
 public class SplashActivity extends Activity {
@@ -25,9 +23,7 @@ public class SplashActivity extends Activity {
         setContentView(R.layout.activity_splash);
         ImageView iv = findViewById(R.id.splash_image);
         new Handler(Looper.getMainLooper()).postDelayed(() -> {
-            Class<?> destination = RuntimeCompat.shouldUseWatchUi(SplashActivity.this)
-                    ? WatchMainActivity.class
-                    : MainActivity.class;
+            Class<?> destination = MainActivity.class;
             startActivity(new Intent(SplashActivity.this, destination));
             // Apply fade transition instead of default activity animation
             com.fadcam.Utils.overridePendingTransitionCompat(this, R.anim.fade_in, R.anim.fade_out);
