@@ -140,7 +140,6 @@ android {
 
 dependencies {
     implementation(libs.activity)
-    implementation(libs.appintro.v631)
     implementation(libs.appcompat)
     implementation(libs.camerax.camera2)
     implementation(libs.camerax.core)

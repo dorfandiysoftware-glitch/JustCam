@@ -417,24 +417,13 @@ public class MainActivity extends AppCompatActivity {
         boolean showOnboarding = sharedPreferencesManager.isShowOnboarding();
         FLog.d("MainActivity", "Should show onboarding: " + showOnboarding);
 
-        if (showOnboarding) {
-            // Check if onboarding was actually completed (user went through it)
-            if (!completedOnboarding) {
-                // User has NOT completed onboarding yet - show full onboarding first
-                Intent intent = new Intent(this, com.fadcam.ui.OnboardingActivity.class);
-                startActivity(intent);
-            } else {
-                // User HAS completed onboarding - show What's New screen instead
-                // Skip WhatsNewActivity on Wear OS: WebView is not supported
-                if (!RuntimeCompat.isWatchDevice(this)) {
-                    Intent intent = new Intent(this, com.fadcam.ui.WhatsNewActivity.class);
-                    startActivity(intent);
-                    finish();
-                    return;
-                }
-            }
-            finish(); // Finish this activity so it's not in the back stack
+        if (!completedOnboarding) {
+            startActivity(new Intent(this, com.fadcam.ui.SetupActivity.class));
+            finish();
             return;
+        }
+        if (showOnboarding) {
+            sharedPreferencesManager.setShowOnboarding(false);
         }
 
         // Now that we know we're not showing onboarding, continue with normal

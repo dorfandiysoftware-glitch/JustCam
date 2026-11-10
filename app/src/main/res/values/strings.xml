@@ -3106,4 +3106,23 @@ For the smoothest playback experience, you can use an external player like VLC. 
     <string name="toast_failed_create_file">Failed to create file for writing</string>
     <string name="sidebar_records_desc">Videos, photos and trash</string>
     <string name="header_settings">Settings</string>
+    <string name="setup_welcome_title">Welcome to JustCam</string>
+    <string name="setup_welcome_body">A simple camera and screen recorder. Background video recording, dual camera, screen recording and a location watermark, with no ads or clutter.</string>
+    <string name="setup_permissions_title">Permissions</string>
+    <string name="setup_permissions_body">JustCam needs a few permissions to work. Camera is required, the rest are optional.</string>
+    <string name="setup_perm_camera">Camera</string>
+    <string name="setup_perm_camera_desc">Required to record video and take photos</string>
+    <string name="setup_perm_mic">Microphone</string>
+    <string name="setup_perm_mic_desc">Record sound together with video</string>
+    <string name="setup_perm_notifications">Notifications</string>
+    <string name="setup_perm_notifications_desc">Show recording status while in the background</string>
+    <string name="setup_perm_location">Location</string>
+    <string name="setup_perm_location_desc">Put your coordinates in the watermark</string>
+    <string name="setup_grant_all">Allow all</string>
+    <string name="setup_done_title">All set</string>
+    <string name="setup_done_body">Swipe left or right on the camera to switch between FadCam, FadRec and FadMic. The menu is at the top left and settings at the top right.</string>
+    <string name="setup_back">Back</string>
+    <string name="setup_next">Continue</string>
+    <string name="setup_finish">Open camera</string>
+    <string name="setup_camera_required">Camera permission is required to continue</string>
 </resources>
