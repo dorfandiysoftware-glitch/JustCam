@@ -442,7 +442,6 @@ public class SettingsHomeFragment extends Fragment {
                 getParentFragmentManager(), "prefs_backup");
         });
         // App section rows (onboarding/auto-update/debug) are wired in wireAppInlineRows()
-        equalizeMiniCardRows(root);
         bindRow(root, R.id.group_watermark_quick, () -> openSubFragment(new WatermarkSettingsFragment()));
         bindRow(root, R.id.group_about, () -> openSubFragment(new AboutFragment()));
         bindRow(root, R.id.group_review, () -> launchReview());
@@ -508,56 +507,6 @@ public class SettingsHomeFragment extends Fragment {
     private void bindRow(View root, int id, Runnable action) {
         View v = root.findViewById(id);
         if (v != null) v.setOnClickListener(x -> action.run());
-    }
-
-    private void setupMiniCard(View root, int cardId, int titleRes, int descRes, String icon, int badgeRes, Runnable action) {
-        View card = root.findViewById(cardId);
-        if (card == null) return;
-        TextView iconTv = card.findViewById(R.id.mini_card_icon);
-        if (iconTv != null) iconTv.setText(icon);
-        TextView titleTv = card.findViewById(R.id.mini_card_title);
-        if (titleTv != null) titleTv.setText(titleRes);
-        TextView descTv = card.findViewById(R.id.mini_card_desc);
-        if (descTv != null) descTv.setText(descRes);
-        TextView badgeTv = card.findViewById(R.id.mini_card_badge);
-        if (badgeTv != null) {
-            if (badgeRes != 0) {
-                badgeTv.setText(badgeRes);
-                badgeTv.setVisibility(View.VISIBLE);
-            } else {
-                badgeTv.setVisibility(View.GONE);
-            }
-        }
-        card.setOnClickListener(v -> action.run());
-    }
-
-    private void equalizeMiniCardRows(View root) {
-        root.post(() -> {
-            int[][] rows = {
-                {R.id.group_mini_torch, R.id.group_mini_qr_scanner, R.id.group_mini_sound_meter},
-                {R.id.group_mini_sensor, R.id.group_mini_speedometer, R.id.group_mini_clinometer},
-                {R.id.group_mini_compass, R.id.group_mini_pedometer, R.id.group_mini_metal_detector},
-                {R.id.group_mini_parking_marker, R.id.group_mini_qr_generator}
-            };
-            for (int[] row : rows) {
-                int maxHeight = 0;
-                View[] cards = new View[row.length];
-                for (int i = 0; i < row.length; i++) {
-                    cards[i] = root.findViewById(row[i]);
-                    if (cards[i] != null) {
-                        maxHeight = Math.max(maxHeight, cards[i].getMeasuredHeight());
-                    }
-                }
-                if (maxHeight == 0) continue;
-                for (View card : cards) {
-                    if (card != null) {
-                        ViewGroup.LayoutParams lp = card.getLayoutParams();
-                        lp.height = maxHeight;
-                        card.setLayoutParams(lp);
-                    }
-                }
-            }
-        });
     }
 
     private void openSubFragment(Fragment fragment) {
