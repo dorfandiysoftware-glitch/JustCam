@@ -1,0 +1,39 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: "Tag, e.g. v0.1.0"
+        required: true
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Clone patched Media3
+        run: git clone --depth 1 https://github.com/anonfaded/media3-patched.git /tmp/media3-patched
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Build debug APK
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug --stacktrace
+      - name: Collect APKs
+        run: |
+          mkdir out
+          for f in app/build/outputs/apk/debug/*.apk; do cp "$f" "out/JustCam-${{ github.event.inputs.version }}-$(basename "$f" | sed 's/.*-//')"; done
+          ls -la out
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.inputs.version }}
+          name: JustCam ${{ github.event.inputs.version }}
+          prerelease: true
+          files: out/*.apk
