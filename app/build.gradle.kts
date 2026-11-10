@@ -9,26 +9,16 @@ android {
     compileSdk = 36
 
     val isBundle = gradle.startParameter.taskNames.any { it.lowercase().contains("bundle") }
-    val isProBuild = gradle.startParameter.taskNames.any { it.lowercase().contains("pro") }
 
     splits {
         abi {
-            // For pro builds: enable splits but only arm64-v8a (no universal)
-            // For main builds: arm64-v8a + armeabi-v7a with universal APK
-            isEnable = !isBundle
-            reset()
-            if (isProBuild) {
-                include("arm64-v8a")
-                isUniversalApk = false
-            } else {
-                include("armeabi-v7a", "arm64-v8a")
-                isUniversalApk = true
-            }
+            include("armeabi-v7a", "arm64-v8a")
+            isUniversalApk = true
         }
     }
 
     defaultConfig {
-        applicationId = "com.fadcam"
+        applicationId = "com.justcam.app"
         minSdk = 24
         targetSdk = 36
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -65,10 +55,7 @@ android {
 
     buildTypes {
         debug {
-            applicationIdSuffix = ".beta"
             isDebuggable = true
-            versionNameSuffix = "-beta10.6" // Increment the beta version suffix for each release. Use `beta1` for the first beta release, then `beta2`, etc.
-            resValue("string", "app_name", "FadCam Beta")
         }
         
         release {
@@ -80,105 +67,6 @@ android {
             )
             isDebuggable = false
             signingConfig = signingConfigs.getByName("release")
-        }
-        
-        create("pro") {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            applicationIdSuffix = ".pro"
-            isDebuggable = false
-            if (releaseSigningConfigValid) {
-                signingConfig = signingConfigs.getByName("release")
-            }
-            versionNameSuffix = "-Pro"
-        }
-        
-        create("proPlus") {
-            isMinifyEnabled = true
-            isShrinkResources = true
-            proguardFiles(
-                getDefaultProguardFile("proguard-android-optimize.txt"),
-                "proguard-rules.pro"
-            )
-            applicationIdSuffix = ".proplus"
-            isDebuggable = false
-            if (releaseSigningConfigValid) {
-                signingConfig = signingConfigs.getByName("release")
-            }
-            versionNameSuffix = "-Pro+"
-            // Custom app name via gradle property
-            val customAppName = project.findProperty("customAppName")?.toString() ?: "FadCam Pro+"
-            resValue("string", "app_name", customAppName)
-        }
-    }
-
-    flavorDimensions += "pro"
-
-    productFlavors {
-        create("notesPro") {
-            dimension = "pro"
-            applicationIdSuffix = ".notes"
-            resValue("string", "app_name", "Notes")
-        }
-        create("calcPro") {
-            dimension = "pro"
-            applicationIdSuffix = ".calc"
-            resValue("string", "app_name", "Calculator")
-        }
-        create("weatherPro") {
-            dimension = "pro"
-            applicationIdSuffix = ".weather"
-            resValue("string", "app_name", "Weather")
-        }
-        create("default") {
-            dimension = "pro"
-            // Default for proPlus builds
-        }
-    }
-
-// ./gradlew assembleNotesProRelease - Notes Pro variant
-// ./gradlew assembleCalcProRelease - Calculator Pro variant
-// ./gradlew assembleWeatherProRelease - Weather Pro variant
-// ./gradlew assembleDefaultProPlusRelease -PcustomAppName="Custom Name" - Pro+ custom build (standalone)
-
-    // Variant filter: only build specific variants (modern API — the old
-    // variantFilter{} is deprecated since AGP 8.x).
-    androidComponents {
-        beforeVariants { variant ->
-            val isPreBuiltFlavor = variant.name.contains("notesPro") || variant.name.contains("calcPro") || variant.name.contains("weatherPro")
-            val isDefaultFlavor = variant.name.contains("default")
-
-            if (isPreBuiltFlavor) {
-                // Pre-built flavors: only 'release' build type
-                if (!variant.name.endsWith("Release")) {
-                    variant.enable = false
-                }
-            } else if (isDefaultFlavor) {
-                // Default flavor: allow 'debug', 'release', and 'proPlus' build types
-                if (variant.name.endsWith("Pro") && !variant.name.endsWith("ProPlus")) {
-                    variant.enable = false
-                }
-            }
-        }
-    }
-
-    // Dynamic APK output names: FadCam_<flavor>_v<versionName><suffix>-<abi>.apk
-    // (default flavor has no <flavor> part; universal APK gets the literal "-universal")
-    applicationVariants.all {
-        val versionName = "${defaultConfig.versionName}${buildType.versionNameSuffix.orEmpty()}"
-        val flavor = if (flavorName != "default") "${flavorName}_" else ""
-        outputs.all {
-            val output = this as com.android.build.gradle.internal.api.BaseVariantOutputImpl
-            val abiType = output.filters
-                .firstOrNull { it.filterType == "ABI" }
-                ?.identifier
-                ?: "universal"
-            output.outputFileName =
-                "FadCam_${flavor}v${versionName}-${abiType}.apk"
         }
     }
 
@@ -207,17 +95,6 @@ android {
         // NOTE: Removed setSrcDirs(emptyList()) to enable test source detection
         // getByName("test").java.setSrcDirs(emptyList<String>())
         // getByName("androidTest").java.setSrcDirs(emptyList<String>())
-        
-        // Flavor-specific resources (icons override main icons)
-        getByName("notesPro") {
-            res.srcDir("src/notesPro/res")
-        }
-        getByName("calcPro") {
-            res.srcDir("src/calcPro/res")
-        }
-        getByName("weatherPro") {
-            res.srcDir("src/weatherPro/res")
-        }
     }
 
     packaging {
