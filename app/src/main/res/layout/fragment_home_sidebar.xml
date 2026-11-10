@@ -69,28 +69,22 @@
 
             <TextView android:layout_width="24dp" android:layout_height="24dp"
                 android:layout_marginEnd="16dp" android:fontFamily="@font/materialicons"
-                android:text="account_circle" android:textColor="?attr/colorHeading"
+                android:text="video_library" android:textColor="?attr/colorHeading"
                 android:textSize="18sp" android:gravity="center"/>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="@string/sidebar_profiles" android:textColor="?attr/colorHeading"
+                    android:text="@string/nav_records" android:textColor="?attr/colorHeading"
                     android:textSize="15sp" android:textStyle="bold"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="@string/sidebar_profiles_desc"
+                    android:text="@string/sidebar_records_desc"
                     android:textColor="?attr/pickerTextSecondary" android:textSize="12sp"
                     android:layout_marginTop="2dp"/>
             </LinearLayout>
 
             <LinearLayout android:layout_width="wrap_content" android:layout_height="wrap_content"
                 android:orientation="horizontal" android:gravity="center_vertical">
-                <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="@string/mini_app_coming_soon"
-                    android:textColor="@android:color/white" android:textSize="9sp"
-                    android:textStyle="bold" android:textAllCaps="true"
-                    android:background="@drawable/bg_coming_soon_badge"
-                    android:paddingHorizontal="6dp" android:paddingVertical="2dp"/>
                 <ImageView android:layout_width="14dp" android:layout_height="14dp"
                     android:layout_marginStart="6dp" android:src="@drawable/ic_arrow_right"
                     android:tint="@android:color/darker_gray"/>

@@ -706,6 +706,15 @@ public class ModeSwitcherComponent {
         return best;
     }
 
+    /** Swipe navigation: move to the neighbouring mode (-1 = left, +1 = right). Returns false at the ends. */
+    public boolean selectAdjacentMode(int delta) {
+        if (!isInitialized() || isInitializing) return false;
+        int target = segmentIndexForMode(currentMode) + delta;
+        if (target < 0 || target > 2) return false;
+        handleModeClick(modeForSegment(target));
+        return true;
+    }
+
     private String modeForSegment(int index) {
         if (index == 1) return Constants.MODE_FADREC;
         if (index == 2) return Constants.MODE_FADMIC;

@@ -10295,6 +10295,16 @@ public class HomeFragment extends BaseFragment {
         // (The "What's New" badge is handled by the sidebar fragment itself.)
         // It starts GONE from XML — the update check in onStart() will show it.
 
+        View headerSettings = view.findViewById(R.id.btnHeaderSettings);
+        if (headerSettings != null) {
+            Utils.attachPressScale(headerSettings, 1.15f);
+            headerSettings.setOnClickListener(v -> {
+                if (getActivity() instanceof MainActivity) {
+                    ((MainActivity) getActivity()).switchFragment(4, true);
+                }
+            });
+        }
+
         // Set up hamburger menu click handler
         if (btnHamburgerMenu != null) {
             btnHamburgerMenu.setOnClickListener(v -> {
@@ -13052,6 +13062,12 @@ public class HomeFragment extends BaseFragment {
             ModeSwitcherComponent modeSwitcher = fragmentHelper.getModeSwitcherComponent();
             modeSwitcher.setActiveMode(modeSwitcher.getCurrentMode());
         }
+    }
+
+    /** Swipe between FadCam / FadRec / FadMic. Returns false when already at the edge. */
+    public boolean swipeMode(int delta) {
+        if (fragmentHelper == null || fragmentHelper.getModeSwitcherComponent() == null) return false;
+        return fragmentHelper.getModeSwitcherComponent().selectAdjacentMode(delta);
     }
 
     private void applyLandscapeFoldConstraints(boolean folded) {

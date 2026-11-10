@@ -127,7 +127,16 @@ public class HomeSidebarFragment extends DialogFragment {
         }
 
         // Upstream-only rows are hidden in JustCam
-        for (int hiddenId : new int[]{R.id.row_profiles, R.id.row_whats_new}) {
+        View recordsRow = view.findViewById(R.id.row_profiles);
+        if (recordsRow != null) {
+            recordsRow.setOnClickListener(v -> {
+                if (getActivity() instanceof com.fadcam.MainActivity) {
+                    ((com.fadcam.MainActivity) getActivity()).switchFragment(1, true);
+                }
+                dismiss();
+            });
+        }
+        for (int hiddenId : new int[]{R.id.row_whats_new}) {
             View hidden = view.findViewById(hiddenId);
             if (hidden != null) hidden.setVisibility(View.GONE);
         }

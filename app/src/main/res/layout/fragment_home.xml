@@ -61,6 +61,19 @@
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent" android:clipChildren="false" android:clipToPadding="false">
 
+            <ImageView
+                android:id="@+id/btnHeaderSettings"
+                android:layout_width="@dimen/home_header_hamburger_icon"
+                android:layout_height="@dimen/home_header_hamburger_icon"
+                android:layout_gravity="center_vertical|end"
+                android:padding="2dp"
+                android:src="@drawable/ic_settings"
+                android:tint="@android:color/white"
+                android:contentDescription="@string/header_settings"
+                android:background="?attr/selectableItemBackgroundBorderless"
+                android:clickable="true"
+                android:focusable="true" />
+
             <com.fadcam.ui.ShimmerTextView 
                 android:id="@+id/btnGetPro"
                 android:layout_width="wrap_content"

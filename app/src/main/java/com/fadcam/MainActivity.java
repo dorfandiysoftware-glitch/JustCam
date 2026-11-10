@@ -798,18 +798,23 @@ public class MainActivity extends AppCompatActivity {
                     boolean isRtl = getWindow().getDecorView().getLayoutDirection() == View.LAYOUT_DIRECTION_RTL;
                     boolean isSwipeBack = isRtl ? (dx < 0) : (dx > 0);
                     
-                    // Swipe "back" from home tab opens sidebar instead of navigating
-                    if (isSwipeBack && currentFragmentPosition == 0) {
-                        openHomeSidebarFromSwipe();
+                    // Home: swipe switches camera mode (FadCam <-> FadRec <-> FadMic).
+                    // Other screens: swipe "back" returns to the camera.
+                    int modeDelta = isRtl ? (dx > 0 ? 1 : -1) : (dx < 0 ? 1 : -1);
+                    if (currentFragmentPosition == 0) {
+                        androidx.fragment.app.Fragment home = getSupportFragmentManager()
+                                .findFragmentByTag(getFragmentTagForPosition(0));
+                        boolean moved = home instanceof com.fadcam.ui.HomeFragment
+                                && ((com.fadcam.ui.HomeFragment) home).swipeMode(modeDelta);
+                        if (!moved && isSwipeBack) {
+                            openHomeSidebarFromSwipe();
+                        }
                         swipeHandled = true;
                         swipeCandidate = false;
                         return true;
                     }
-                    // RTL-aware tab navigation: reverse direction in RTL layout
-                    int direction = isRtl ? (dx > 0 ? 1 : -1) : (dx < 0 ? 1 : -1);
-                    int target = currentFragmentPosition + direction;
-                    if (target >= 0 && target <= 5) {
-                        switchFragment(target, true);
+                    if (isSwipeBack) {
+                        switchFragment(0, true);
                         swipeHandled = true;
                         swipeCandidate = false;
                         return true;
