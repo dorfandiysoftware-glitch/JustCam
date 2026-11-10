@@ -31,7 +31,6 @@ import androidx.fragment.app.Fragment;
 import com.fadcam.ui.RecordsFragment;
 import com.fadcam.ui.RemoteFragment;
 import com.fadcam.ui.HomeFragment;
-import com.fadcam.ui.FaditorMiniFragment;
 import com.fadcam.ui.SettingsHomeFragment;
 import com.fadcam.forensics.ui.ForensicIntelligenceFragment;
 import com.fadcam.ui.utils.NewFeatureManager;
@@ -667,8 +666,6 @@ public class MainActivity extends AppCompatActivity {
                 targetPosition = 1;
             } else if (itemId == R.id.navigation_remote) {
                 targetPosition = 2;
-            } else if (itemId == R.id.navigation_faditor_mini) {
-                targetPosition = 3;
             } else if (itemId == R.id.navigation_settings) {
                 targetPosition = 4;
             } else if (itemId == R.id.navigation_lab) {
@@ -2198,9 +2195,6 @@ public class MainActivity extends AppCompatActivity {
             case 2:
                 newFragment = new RemoteFragment();
                 break;
-            case 3:
-                newFragment = new FaditorMiniFragment();
-                break;
             case 4:
                 newFragment = new com.fadcam.ui.SettingsHomeFragment();
                 break;
@@ -2258,7 +2252,6 @@ public class MainActivity extends AppCompatActivity {
             case 0: return R.id.navigation_home;
             case 1: return R.id.navigation_records;
             case 2: return R.id.navigation_remote;
-            case 3: return R.id.navigation_faditor_mini;
             case 4: return R.id.navigation_settings;
             case 5: return R.id.navigation_lab;
             default: return -1;

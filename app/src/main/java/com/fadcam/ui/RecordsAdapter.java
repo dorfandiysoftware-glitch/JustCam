@@ -1322,11 +1322,6 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                     ctx.getString(R.string.video_menu_upload_faddrive, "Upload to FadDrive"), "cloud",
                     ctx.getString(R.string.remote_coming_soon_badge), R.drawable.badge_background_green, true, null));
         }
-        // Edit with Faditor Mini
-        if (!isImage) {
-            items.add(OptionItem.withLigature("action_edit_faditorx", ctx.getString(R.string.edit_with_faditorx),
-                    "content_cut"));
-        }
         items.add(OptionItem.withLigature("action_delete", ctx.getString(R.string.video_menu_del), "delete"));
 
         String resultKey = "video_actions:"
@@ -1339,9 +1334,6 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             if (id == null)
                 return;
             switch (id) {
-                case "action_edit_faditorx":
-                    launchFaditorMini(ctx, videoItem);
-                    break;
                 case "action_upload_faddrive":
                     Toast.makeText(ctx, R.string.remote_toast_coming_soon, Toast.LENGTH_SHORT).show();
                     break;
@@ -1511,7 +1503,6 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 : new PopupMenu(context, holder.menuButtonContainer);
         popup.getMenuInflater().inflate(R.menu.video_item_menu, popup.getMenu());
         if (isImage) {
-            popup.getMenu().removeItem(R.id.action_edit_faditorx);
             popup.getMenu().removeItem(R.id.action_upload_youtube);
             popup.getMenu().removeItem(R.id.action_upload_drive);
         }
@@ -1545,10 +1536,7 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         // Handle all menu actions
         popup.setOnMenuItemClickListener(item -> {
             int id = item.getItemId();
-            if (id == R.id.action_edit_faditorx) {
-                launchFaditorMini(context, videoItem);
-                return true;
-            } else if (id == R.id.action_save) {
+            if (id == R.id.action_save) {
                 saveVideoToGalleryInternal(videoItem);
                 return true;
             } else if (id == R.id.action_fix_video) {
@@ -2015,25 +2003,6 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
         } catch (Exception e) {
             FLog.e(TAG, "Error showing video info bottom sheet", e);
             Toast.makeText(context, context.getString(R.string.records_error_video_info), Toast.LENGTH_SHORT).show();
-        }
-    }
-
-    /**
-     * Launches Faditor Mini editor with the selected video.
-     *
-     * @param ctx       the current context (must be an Activity)
-     * @param videoItem the video to edit
-     */
-    private void launchFaditorMini(@NonNull Context ctx, @NonNull VideoItem videoItem) {
-        if (videoItem.uri == null) return;
-        try {
-            Intent intent = new Intent(ctx, com.fadcam.ui.faditor.FaditorEditorActivity.class);
-            intent.setData(videoItem.uri);
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            ctx.startActivity(intent);
-        } catch (Exception e) {
-            FLog.e(TAG, "Failed to launch Faditor Mini", e);
-            Toast.makeText(ctx, ctx.getString(R.string.records_cannot_open_editor), Toast.LENGTH_SHORT).show();
         }
     }
 
