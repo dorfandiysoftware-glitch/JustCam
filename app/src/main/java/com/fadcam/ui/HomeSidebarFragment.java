@@ -368,36 +368,7 @@ public class HomeSidebarFragment extends DialogFragment {
     private void setupUpdateCards(@NonNull View view) {
         android.widget.LinearLayout section = view.findViewById(R.id.update_available_section);
         if (section == null) return;
-        com.fadcam.services.UpdateCheckService.UpdateCheckResult r =
-                com.fadcam.services.UpdateCheckService.getLastResult();
-        if (r == null || !r.hasAnyUpdate()) { section.setVisibility(View.GONE); return; }
-        section.setVisibility(View.VISIBLE);
-
-        String cur = getAppVersion();
-
-        if (r.hasStable) setupCard(view, R.id.card_update_stable, R.id.tv_stable_version,
-                cur, r.stableVersion, () -> {
-                    UpdateAvailableBottomSheet.newInstance(r.stableVersion, "", r.stableUrl)
-                            .show(getParentFragmentManager(), "UpdateSheet");
-                    dismiss();
-                });
-        else hideCard(view, R.id.card_update_stable);
-
-        if (r.hasBeta) setupCard(view, R.id.card_update_beta, R.id.tv_beta_version,
-                cur, r.betaVersion, () -> {
-                    BetaUpdateBottomSheet.newInstance(r.betaVersion, r.betaUrl, cur)
-                            .show(getParentFragmentManager(), "BetaSheet");
-                    dismiss();
-                });
-        else hideCard(view, R.id.card_update_beta);
-
-        if (r.hasPro) setupCard(view, R.id.card_update_pro, R.id.tv_pro_version,
-                cur, r.proVersion, () -> {
-                    ProUpdateBottomSheet.newInstance(r.proVersion, r.proUrl, cur)
-                            .show(getParentFragmentManager(), "ProSheet");
-                    dismiss();
-                });
-        else hideCard(view, R.id.card_update_pro);
+        section.setVisibility(View.GONE);
     }
 
     private void setupCard(View v, int cardId, int verId, String cur, String latest, Runnable onClick) {

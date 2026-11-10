@@ -308,15 +308,11 @@ public class AboutFragment extends BaseFragment {
         }
         privacyInfoContent.setText(Html.fromHtml(qnaContent.toString(), Html.FROM_HTML_MODE_LEGACY));
         sourceCodeButton.setOnClickListener(v -> openUrl("https://github.com/fadsec-lab/"));
-        donateButton.setOnClickListener(v -> {
-            KoFiSupportBottomSheet bottomSheet = new KoFiSupportBottomSheet();
-            bottomSheet.show(getParentFragmentManager(), "KoFiSupportBottomSheet");
-        });
-        checkUpdatesButton.setOnClickListener(v -> checkForUpdates());
+        donateButton.setVisibility(View.GONE);
+        checkUpdatesButton.setVisibility(View.GONE);
         emailText.setOnClickListener(v -> sendEmail());
         discordText.setOnClickListener(v -> openUrl("https://discord.gg/kvAZvdkuuN"));
         setupPrivacyInfo(privacyInfoCard, scrollView);
-        view.findViewById(R.id.check_updates_button).setOnClickListener(v -> checkForUpdates());
 
         // Find text elements with specific content and set their colors
         ScrollView scrollViewObj = view.findViewById(R.id.scroll_view);
@@ -474,56 +470,7 @@ public class AboutFragment extends BaseFragment {
     // Code for checking updates
 
 
-    private void checkForUpdates() {
-        showLoadingDialog(getString(R.string.up_to_date_loading));
-        ExecutorService updateExecutor = Executors.newSingleThreadExecutor();
-        updateExecutor.execute(() -> {
-            try {
-                String currentVersion = getAppVersionForUpdates();
-                com.fadcam.services.UpdateCheckService.UpdateCheckResult result =
-                    com.fadcam.services.UpdateCheckService.checkForUpdate(currentVersion);
-                FLog.d("UpdateCheck", "About check: package="
-                        + com.fadcam.BuildConfig.APPLICATION_ID
-                        + " isBetaApp=" + com.fadcam.BuildConfig.APPLICATION_ID.endsWith(".beta")
-                        + " current=" + currentVersion
-                        + " stable=" + result.stableVersion + "(" + result.hasStable + ")"
-                        + " beta=" + result.betaVersion + "(" + result.hasBeta + ")"
-                        + " pro=" + result.proVersion + "(" + result.hasPro + ")"
-                        + " error=" + result.errorOccurred);
-
-                requireActivity().runOnUiThread(() -> {
-                    dismissLoadingDialog();
-                    if (result.errorOccurred) {
-                        showErrorDialog(getString(R.string.about_update_failed));
-                    } else if (com.fadcam.BuildConfig.APPLICATION_ID.endsWith(".beta")
-                            && result.hasBeta) {
-                        // Beta app: surface the BETA update directly (testers need
-                        // the urgent info without hunting in the sidebar).
-                        BetaUpdateBottomSheet.newInstance(
-                            result.betaVersion, result.betaUrl, currentVersion)
-                            .show(getParentFragmentManager(), "BetaUpdateSheet");
-                    } else if (result.hasStable) {
-                        UpdateAvailableBottomSheet.newInstance(
-                            result.stableVersion, "", result.stableUrl)
-                            .show(getParentFragmentManager(), "UpdateAvailableBottomSheet");
-                    } else {
-                        if (result.hasBeta) {
-                            showUpToDateDialog(getString(R.string.about_beta_available, result.betaVersion),
-                                    result.betaUrl);
-                        } else {
-                            showUpToDateDialog("", null);
-                        }
-                    }
-                });
-            } catch (Exception e) {
-                e.printStackTrace();
-                requireActivity().runOnUiThread(() -> {
-                    dismissLoadingDialog();
-                    showErrorDialog(getString(R.string.about_update_failed));
-                });
-            }
-        });
-    }
+    
 
     private void showLoadingDialog(String message) {
         requireActivity().runOnUiThread(() -> {
