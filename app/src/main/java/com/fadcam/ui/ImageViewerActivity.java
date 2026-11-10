@@ -75,7 +75,7 @@ public class ImageViewerActivity extends AppCompatActivity {
                 Constants.DEFAULT_APP_THEME
         );
         if ("Crimson Bloom".equals(savedTheme)) {
-            setTheme(R.style.Theme_FadCam_Red);
+            setTheme(R.style.Base_Theme_FadCam);
         } else if ("Faded Night".equals(savedTheme)) {
             setTheme(R.style.Theme_FadCam_Amoled);
         } else {

@@ -1578,6 +1578,19 @@ public class MainActivity extends AppCompatActivity {
         String savedTheme = sharedPreferencesManager.sharedPreferences.getString(Constants.PREF_APP_THEME,
                 Constants.DEFAULT_APP_THEME);
         applyTheme(savedTheme);
+        applyDynamicColors(savedTheme);
+    }
+
+    /** Material You: wallpaper-derived colours on Android 12+, except in the true-black variant. */
+    private void applyDynamicColors(String themeName) {
+        try {
+            boolean amoled = "Faded Night".equals(themeName) || "AMOLED".equalsIgnoreCase(themeName);
+            if (!amoled) {
+                com.google.android.material.color.DynamicColors.applyToActivityIfAvailable(this);
+            }
+        } catch (Exception e) {
+            FLog.w("MainActivity", "Dynamic colours unavailable", e);
+        }
     }
 
     private void applyTheme(String themeName) {
@@ -1603,30 +1616,30 @@ public class MainActivity extends AppCompatActivity {
                         setNavigationBarColor(getResources().getColor(R.color.amoled_background, getTheme()));
         } else if ("Crimson Bloom".equals(themeName)) {
             // Red theme
-            setTheme(R.style.Theme_FadCam_Red);
+            setTheme(R.style.Base_Theme_FadCam);
                         setNavigationBarColor(getResources().getColor(R.color.red_theme_background_dark, getTheme()));
         } else if ("Premium Gold".equals(themeName)) {
             // Gold theme
-            setTheme(R.style.Theme_FadCam_Gold);
+            setTheme(R.style.Base_Theme_FadCam);
                         setNavigationBarColor(getResources().getColor(R.color.gold_theme_background_dark, getTheme()));
         } else if ("Silent Forest".equals(themeName)) {
             // Silent Forest theme
-            setTheme(R.style.Theme_FadCam_SilentForest);
+            setTheme(R.style.Base_Theme_FadCam);
                         setNavigationBarColor(
                     getResources().getColor(R.color.silentforest_theme_background_dark, getTheme()));
         } else if ("Shadow Alloy".equals(themeName)) {
             // Shadow Alloy theme
-            setTheme(R.style.Theme_FadCam_ShadowAlloy);
+            setTheme(R.style.Base_Theme_FadCam);
                         setNavigationBarColor(
                     getResources().getColor(R.color.shadowalloy_theme_background_dark, getTheme()));
         } else if ("Pookie Pink".equals(themeName)) {
             // Pookie Pink theme
-            setTheme(R.style.Theme_FadCam_PookiePink);
+            setTheme(R.style.Base_Theme_FadCam);
             setNavigationBarColor(
                     getResources().getColor(R.color.pookiepink_theme_background_dark, getTheme()));
         } else if ("Snow Veil".equals(themeName)) {
             // Snow Veil theme
-            setTheme(R.style.Theme_FadCam_SnowVeil);
+            setTheme(R.style.Base_Theme_FadCam);
             setNavigationBarColor(
                     getResources().getColor(R.color.snowveil_theme_background_light, getTheme()));
 
@@ -1635,14 +1648,14 @@ public class MainActivity extends AppCompatActivity {
             setNavigationBarIconsLight(true);
         } else if ("Midnight Dusk".equals(themeName)) {
             // Always use the custom always-dark theme for Midnight Dusk
-            setTheme(R.style.Theme_FadCam_MidnightDusk);
+            setTheme(R.style.Base_Theme_FadCam);
             setNavigationBarColor(getResources().getColor(R.color.gray, getTheme()));
         } else {
             // If we get an unknown theme name, use the system default
             // This should be the Crimson Bloom theme as defined in
             // Constants.DEFAULT_APP_THEME
             if ("Crimson Bloom".equals(Constants.DEFAULT_APP_THEME)) {
-                setTheme(R.style.Theme_FadCam_Red);
+                setTheme(R.style.Base_Theme_FadCam);
                                 setNavigationBarColor(getResources().getColor(R.color.red_theme_background_dark, getTheme()));
             } else {
                 // Fallback to base theme
@@ -1679,29 +1692,31 @@ public class MainActivity extends AppCompatActivity {
 
         // Apply appropriate theme based on name
         if ("Crimson Bloom".equals(themeName)) {
-            setTheme(R.style.Theme_FadCam_Red);
+            setTheme(R.style.Base_Theme_FadCam);
         } else if ("Faded Night".equals(themeName)) {
             setTheme(R.style.Theme_FadCam_Amoled);
         } else if ("Midnight Dusk".equals(themeName)) {
-            setTheme(R.style.Theme_FadCam_MidnightDusk); // Always use the custom always-dark theme
+            setTheme(R.style.Base_Theme_FadCam); // Always use the custom always-dark theme
         } else if ("Premium Gold".equals(themeName)) {
-            setTheme(R.style.Theme_FadCam_Gold);
+            setTheme(R.style.Base_Theme_FadCam);
         } else if ("Silent Forest".equals(themeName)) {
-            setTheme(R.style.Theme_FadCam_SilentForest);
+            setTheme(R.style.Base_Theme_FadCam);
         } else if ("Shadow Alloy".equals(themeName)) {
-            setTheme(R.style.Theme_FadCam_ShadowAlloy);
+            setTheme(R.style.Base_Theme_FadCam);
         } else if ("Pookie Pink".equals(themeName)) {
-            setTheme(R.style.Theme_FadCam_PookiePink);
+            setTheme(R.style.Base_Theme_FadCam);
         } else if ("Snow Veil".equals(themeName)) {
-            setTheme(R.style.Theme_FadCam_SnowVeil);
+            setTheme(R.style.Base_Theme_FadCam);
         } else {
             // Default to Crimson Bloom for any unknown values
-            setTheme(R.style.Theme_FadCam_Red);
+            setTheme(R.style.Base_Theme_FadCam);
             // Save the corrected theme value
             sharedPreferencesManager.sharedPreferences.edit()
                     .putString(Constants.PREF_APP_THEME, "Crimson Bloom")
                     .apply();
         }
+
+        applyDynamicColors(themeName);
 
         // Update default clock color based on theme
         sharedPreferencesManager.updateDefaultClockColorForTheme();

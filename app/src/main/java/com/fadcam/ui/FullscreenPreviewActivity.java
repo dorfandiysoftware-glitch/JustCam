@@ -401,14 +401,14 @@ public class FullscreenPreviewActivity extends AppCompatActivity {
         int styleRes;
         switch (theme) {
             case "Faded Night":   styleRes = R.style.Theme_FadCam_Amoled;       break;
-            case "Midnight Dusk": styleRes = R.style.Theme_FadCam_MidnightDusk; break;
-            case "Premium Gold":  styleRes = R.style.Theme_FadCam_Gold;         break;
-            case "Silent Forest": styleRes = R.style.Theme_FadCam_SilentForest; break;
-            case "Shadow Alloy":  styleRes = R.style.Theme_FadCam_ShadowAlloy;  break;
-            case "Pookie Pink":   styleRes = R.style.Theme_FadCam_PookiePink;   break;
-            case "Snow Veil":     styleRes = R.style.Theme_FadCam_SnowVeil;     break;
+            case "Midnight Dusk": styleRes = R.style.Base_Theme_FadCam; break;
+            case "Premium Gold":  styleRes = R.style.Base_Theme_FadCam;         break;
+            case "Silent Forest": styleRes = R.style.Base_Theme_FadCam; break;
+            case "Shadow Alloy":  styleRes = R.style.Base_Theme_FadCam;  break;
+            case "Pookie Pink":   styleRes = R.style.Base_Theme_FadCam;   break;
+            case "Snow Veil":     styleRes = R.style.Base_Theme_FadCam;     break;
             case "Crimson Bloom":
-            default:              styleRes = R.style.Theme_FadCam_Red;          break;
+            default:              styleRes = R.style.Base_Theme_FadCam;          break;
         }
         setTheme(styleRes);
     }

@@ -200,7 +200,7 @@ public class VideoPlayerActivity extends AppCompatActivity {
             );
 
         if ("Crimson Bloom".equals(savedTheme)) {
-            setTheme(R.style.Theme_FadCam_Red);
+            setTheme(R.style.Base_Theme_FadCam);
         } else if ("Faded Night".equals(savedTheme)) {
             setTheme(R.style.Theme_FadCam_Amoled);
         } else {
