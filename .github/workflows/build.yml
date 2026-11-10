@@ -1,0 +1,28 @@
+name: Build
+
+on:
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      # Patched Media3 muxer (recording finalisation fixes); the build warns and falls back without it.
+      - name: Clone patched Media3
+        run: git clone --depth 1 https://github.com/anonfaded/media3-patched.git /tmp/media3-patched
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+          cache: gradle
+      - name: Debug APK
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDefaultDebug --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: JustCam-debug-apk
+          path: app/build/outputs/apk/default/debug/*.apk
