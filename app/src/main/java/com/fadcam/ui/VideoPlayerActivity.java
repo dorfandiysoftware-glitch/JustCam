@@ -236,14 +236,8 @@ public class VideoPlayerActivity extends AppCompatActivity {
         // *** FIX: Get the video URI using getData() ***
         Uri videoUri = getIntent().getData();
             this.currentVideoUri = videoUri; // Store for later use
-            final long requestedSeekMs = getIntent().getLongExtra(
-                com.fadcam.forensics.ui.ForensicsEventsFragment.EXTRA_OPEN_AT_MS,
-                -1L
-            );
-            openPausedFromForensics = getIntent().getBooleanExtra(
-                com.fadcam.forensics.ui.ForensicsEventsFragment.EXTRA_OPEN_PAUSED,
-                false
-            );
+            final long requestedSeekMs = -1L;
+            openPausedFromForensics = false;
 
         if (videoUri != null) {
             FLog.i(TAG, "Received video URI: " + videoUri.toString());

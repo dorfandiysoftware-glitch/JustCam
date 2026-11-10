@@ -69,7 +69,6 @@ import com.fadcam.Utils;
 import com.fadcam.utils.RecordingStoragePaths;
 import com.fadcam.ui.picker.OptionItem;
 import com.fadcam.ui.picker.PickerBottomSheetFragment;
-import com.fadcam.forensics.service.DigitalForensicsIndexCoordinator;
 import com.fadcam.service.RecordsDeletionRequestItem;
 import com.fadcam.service.RecordsDeletionService;
 import com.fadcam.service.RecordsDeletionSessionSnapshot;
@@ -5615,9 +5614,6 @@ public class RecordsFragment extends BaseFragment implements
                     // Keep caches in sync
                     com.fadcam.utils.VideoSessionCache.updateSessionCache(normalized);
 
-                    // Digital forensics indexing (non-blocking)
-                    DigitalForensicsIndexCoordinator.getInstance(requireContext()).enqueueIndex(normalized);
-
                     // Deliver directly to UI — no skeleton transition
                     new Handler(Looper.getMainLooper()).post(() -> {
                         if (!isAdded()) return;
@@ -5685,9 +5681,6 @@ public class RecordsFragment extends BaseFragment implements
 
                 long loadElapsed = System.currentTimeMillis() - loadStart;
                 FLog.i(TAG, "loadRecordsList: Cold start — " + normalized.size() + " items ready in " + loadElapsed + "ms");
-
-                // Digital forensics indexing (non-blocking)
-                DigitalForensicsIndexCoordinator.getInstance(requireContext()).enqueueIndex(normalized);
 
                 // Deliver results to UI — replaces skeleton
                 new Handler(Looper.getMainLooper()).post(() -> {

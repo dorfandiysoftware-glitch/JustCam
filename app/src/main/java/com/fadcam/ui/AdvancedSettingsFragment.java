@@ -32,22 +32,6 @@ public class AdvancedSettingsFragment extends Fragment {
         if (back != null) {
             back.setOnClickListener(v -> handleBack());
         }
-        View motionLab = view.findViewById(R.id.row_motion_lab);
-        if (motionLab != null) {
-            motionLab.setOnClickListener(v -> OverlayNavUtil.show(
-                requireActivity(),
-                new MotionLabSettingsFragment(),
-                "MotionLabSettingsFragment"
-            ));
-        }
-        View digitalForensics = view.findViewById(R.id.row_digital_forensics);
-        if (digitalForensics != null) {
-            digitalForensics.setOnClickListener(v -> OverlayNavUtil.show(
-                requireActivity(),
-                new DigitalForensicsSettingsFragment(),
-                "DigitalForensicsSettingsFragment"
-            ));
-        }
         View thermalGuardian = view.findViewById(R.id.row_thermal_guardian);
         if (thermalGuardian != null) {
             thermalGuardian.setOnClickListener(v ->

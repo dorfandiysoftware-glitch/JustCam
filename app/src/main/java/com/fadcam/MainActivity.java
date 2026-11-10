@@ -32,7 +32,6 @@ import com.fadcam.ui.RecordsFragment;
 import com.fadcam.ui.RemoteFragment;
 import com.fadcam.ui.HomeFragment;
 import com.fadcam.ui.SettingsHomeFragment;
-import com.fadcam.forensics.ui.ForensicIntelligenceFragment;
 import com.fadcam.ui.utils.NewFeatureManager;
 import com.fadcam.utils.RuntimeCompat;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -668,8 +667,6 @@ public class MainActivity extends AppCompatActivity {
                 targetPosition = 2;
             } else if (itemId == R.id.navigation_settings) {
                 targetPosition = 4;
-            } else if (itemId == R.id.navigation_lab) {
-                targetPosition = 5;
             }
             
             if (targetPosition != -1) {
@@ -2198,9 +2195,6 @@ public class MainActivity extends AppCompatActivity {
             case 4:
                 newFragment = new com.fadcam.ui.SettingsHomeFragment();
                 break;
-            case 5:
-                newFragment = new com.fadcam.forensics.ui.ForensicIntelligenceFragment();
-                break;
             default:
                 newFragment = new com.fadcam.ui.HomeFragment();
         }
@@ -2253,7 +2247,6 @@ public class MainActivity extends AppCompatActivity {
             case 1: return R.id.navigation_records;
             case 2: return R.id.navigation_remote;
             case 4: return R.id.navigation_settings;
-            case 5: return R.id.navigation_lab;
             default: return -1;
         }
     }
