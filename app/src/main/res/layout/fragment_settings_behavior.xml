@@ -78,21 +78,20 @@ app:layout_constraintTop_toTopOf="parent"
                     android:layout_height="24dp"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_info"
-                    android:tint="@android:color/darker_gray"/>
+                    android:tint="?attr/colorPrimary"/>
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/settings_onboarding_title"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
-                    android:textColor="?attr/colorHeading"/>
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorOnSurface"/>
                 <TextView
                     android:id="@+id/value_onboarding_state"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="-"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="13sp"/>
                 <com.google.android.material.materialswitch.MaterialSwitch
                     android:id="@+id/toggle_onboarding"
@@ -112,21 +111,20 @@ app:layout_constraintTop_toTopOf="parent"
                     android:layout_height="24dp"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_info"
-                    android:tint="@android:color/darker_gray"/>
+                    android:tint="?attr/colorPrimary"/>
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/settings_auto_update_check"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
-                    android:textColor="?attr/colorHeading"/>
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorOnSurface"/>
                 <TextView
                     android:id="@+id/value_auto_update_state"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="-"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="13sp"/>
                 <com.google.android.material.materialswitch.MaterialSwitch
                     android:id="@+id/toggle_auto_update"

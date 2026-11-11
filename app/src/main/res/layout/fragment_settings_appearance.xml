@@ -78,28 +78,27 @@ app:layout_constraintTop_toTopOf="parent"
                     android:layout_height="24dp"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_theme"
-                    android:tint="@android:color/darker_gray"/>
+                    android:tint="?attr/colorPrimary"/>
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/setting_theme"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
-                    android:textColor="?attr/colorHeading"/>
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorOnSurface"/>
                 <TextView
                     android:id="@+id/value_theme"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="-"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="13sp"/>
                 <ImageView
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:layout_marginStart="8dp"
                     android:src="@drawable/ic_arrow_right"
-                    android:tint="@android:color/darker_gray"/>
+                    android:tint="?attr/colorOnSurfaceVariant"/>
             </LinearLayout>
             <View style="@style/SettingsDivider" />
 
@@ -114,28 +113,27 @@ app:layout_constraintTop_toTopOf="parent"
                     android:layout_height="24dp"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_language"
-                    android:tint="@android:color/darker_gray"/>
+                    android:tint="?attr/colorPrimary"/>
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/setting_language"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
-                    android:textColor="?attr/colorHeading"/>
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorOnSurface"/>
                 <TextView
                     android:id="@+id/value_language"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="-"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="13sp"/>
                 <ImageView
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:layout_marginStart="8dp"
                     android:src="@drawable/ic_arrow_right"
-                    android:tint="@android:color/darker_gray"/>
+                    android:tint="?attr/colorOnSurfaceVariant"/>
             </LinearLayout>
             <View style="@style/SettingsDivider" />
 
@@ -150,28 +148,27 @@ app:layout_constraintTop_toTopOf="parent"
                     android:layout_height="24dp"
                     android:layout_marginEnd="16dp"
                     android:src="@drawable/ic_camera"
-                    android:tint="@android:color/darker_gray"/>
+                    android:tint="?attr/colorPrimary"/>
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/setting_app_icon"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
-                    android:textColor="?attr/colorHeading"/>
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorOnSurface"/>
                 <TextView
                     android:id="@+id/value_app_icon"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="-"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="13sp"/>
                 <ImageView
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:layout_marginStart="8dp"
                     android:src="@drawable/ic_arrow_right"
-                    android:tint="@android:color/darker_gray"/>
+                    android:tint="?attr/colorOnSurfaceVariant"/>
             </LinearLayout>
             <View style="@style/SettingsDivider" />
 
@@ -189,15 +186,14 @@ app:layout_constraintTop_toTopOf="parent"
                     android:text="visibility"
                     android:textSize="20sp"
                     android:fontFamily="@font/materialicons"
-                    android:textColor="@android:color/darker_gray"/>
+                    android:textColor="?attr/colorOnSurfaceVariant"/>
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/setting_eye_color_title"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
-                    android:textColor="?attr/colorHeading"/>
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorOnSurface"/>
                 <View
                     android:id="@+id/eye_color_swatch"
                     android:layout_width="18dp"
@@ -209,14 +205,14 @@ app:layout_constraintTop_toTopOf="parent"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="-"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="13sp"/>
                 <ImageView
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:layout_marginStart="8dp"
                     android:src="@drawable/ic_arrow_right"
-                    android:tint="@android:color/darker_gray"/>
+                    android:tint="?attr/colorOnSurfaceVariant"/>
             </LinearLayout>
             <View style="@style/SettingsDivider" />
 
@@ -234,28 +230,27 @@ app:layout_constraintTop_toTopOf="parent"
                     android:text="smart_display"
                     android:textSize="20sp"
                     android:fontFamily="@font/materialicons"
-                    android:textColor="@android:color/darker_gray"/>
+                    android:textColor="?attr/colorOnSurfaceVariant"/>
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:text="@string/setting_header_logo_title"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
-                    android:textColor="?attr/colorHeading"/>
+                    android:textSize="16sp"
+                    android:textColor="?attr/colorOnSurface"/>
                 <TextView
                     android:id="@+id/value_header_logo"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="-"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="13sp"/>
                 <ImageView
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:layout_marginStart="8dp"
                     android:src="@drawable/ic_arrow_right"
-                    android:tint="@android:color/darker_gray"/>
+                    android:tint="?attr/colorOnSurfaceVariant"/>
             </LinearLayout>
             <!-- Removed trailing divider under last row for cleaner card bottom -->
             </LinearLayout> <!-- end group_card_appearance -->

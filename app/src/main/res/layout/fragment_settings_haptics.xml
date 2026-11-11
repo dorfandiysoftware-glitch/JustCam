@@ -128,7 +128,7 @@
                         android:layout_height="24dp"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_play_arrow_24"
-                        android:tint="@android:color/darker_gray"/>
+                        android:tint="?attr/colorPrimary"/>
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -138,15 +138,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/settings_haptics_start_title"
-                            android:textStyle="bold"
-                            android:textSize="15sp"
-                            android:textColor="?attr/colorHeading"
+                            android:textSize="16sp"
+                            android:textColor="?attr/colorOnSurface"
                             android:textAlignment="viewStart"/>
                         <TextView
                             android:id="@+id/start_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@android:color/darker_gray"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="12sp"
                             android:textAlignment="viewStart"/>
                     </LinearLayout>
@@ -156,7 +155,7 @@
                         android:layout_height="32dp"
                         android:padding="6dp"
                         android:src="@drawable/ic_play_arrow_24"
-                        android:tint="@android:color/darker_gray"
+                        android:tint="?attr/colorOnSurfaceVariant"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/settings_haptics_start_title"
                         android:clickable="true"
@@ -166,7 +165,7 @@
                         android:layout_height="14dp"
                         android:layout_marginStart="4dp"
                         android:src="@drawable/ic_arrow_right"
-                        android:tint="@android:color/darker_gray"/>
+                        android:tint="?attr/colorOnSurfaceVariant"/>
                 </LinearLayout>
 
                 <View style="@style/SettingsDivider" />
@@ -182,7 +181,7 @@
                         android:layout_height="24dp"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_stop"
-                        android:tint="@android:color/darker_gray"/>
+                        android:tint="?attr/colorPrimary"/>
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -192,15 +191,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/settings_haptics_stop_title"
-                            android:textStyle="bold"
-                            android:textSize="15sp"
-                            android:textColor="?attr/colorHeading"
+                            android:textSize="16sp"
+                            android:textColor="?attr/colorOnSurface"
                             android:textAlignment="viewStart"/>
                         <TextView
                             android:id="@+id/stop_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@android:color/darker_gray"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="12sp"
                             android:textAlignment="viewStart"/>
                     </LinearLayout>
@@ -210,7 +208,7 @@
                         android:layout_height="32dp"
                         android:padding="6dp"
                         android:src="@drawable/ic_play_arrow_24"
-                        android:tint="@android:color/darker_gray"
+                        android:tint="?attr/colorOnSurfaceVariant"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/settings_haptics_stop_title"
                         android:clickable="true"
@@ -220,7 +218,7 @@
                         android:layout_height="14dp"
                         android:layout_marginStart="4dp"
                         android:src="@drawable/ic_arrow_right"
-                        android:tint="@android:color/darker_gray"/>
+                        android:tint="?attr/colorOnSurfaceVariant"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -254,7 +252,7 @@
                         android:fontFamily="@font/materialicons"
                         android:gravity="center"
                         android:text="flashlight_on"
-                        android:textColor="@android:color/darker_gray"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="22sp"/>
                     <LinearLayout
                         android:layout_width="0dp"
@@ -265,15 +263,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/settings_haptics_torch_title"
-                            android:textStyle="bold"
-                            android:textSize="15sp"
-                            android:textColor="?attr/colorHeading"
+                            android:textSize="16sp"
+                            android:textColor="?attr/colorOnSurface"
                             android:textAlignment="viewStart"/>
                         <TextView
                             android:id="@+id/torch_value"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textColor="@android:color/darker_gray"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="12sp"
                             android:textAlignment="viewStart"/>
                     </LinearLayout>
@@ -283,7 +280,7 @@
                         android:layout_height="32dp"
                         android:padding="6dp"
                         android:src="@drawable/ic_play_arrow_24"
-                        android:tint="@android:color/darker_gray"
+                        android:tint="?attr/colorOnSurfaceVariant"
                         android:background="?attr/selectableItemBackgroundBorderless"
                         android:contentDescription="@string/settings_haptics_torch_title"
                         android:clickable="true"
@@ -293,7 +290,7 @@
                         android:layout_height="14dp"
                         android:layout_marginStart="4dp"
                         android:src="@drawable/ic_arrow_right"
-                        android:tint="@android:color/darker_gray"/>
+                        android:tint="?attr/colorOnSurfaceVariant"/>
                 </LinearLayout>
                 <View style="@style/SettingsDivider" />
 
@@ -309,7 +306,7 @@
                         android:fontFamily="@font/materialicons"
                         android:gravity="center"
                         android:text="vibration"
-                        android:textColor="@android:color/darker_gray"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="22sp"/>
                     <LinearLayout
                         android:layout_width="0dp"
@@ -320,15 +317,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/settings_haptics_ui_title"
-                            android:textStyle="bold"
-                            android:textSize="15sp"
-                            android:textColor="?attr/colorHeading"
+                            android:textSize="16sp"
+                            android:textColor="?attr/colorOnSurface"
                             android:textAlignment="viewStart"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/settings_haptics_ui_subtitle"
-                            android:textColor="@android:color/darker_gray"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="12sp"
                             android:textAlignment="viewStart"/>
                     </LinearLayout>
@@ -352,7 +348,7 @@
                         android:layout_height="24dp"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_schedule"
-                        android:tint="@android:color/darker_gray"/>
+                        android:tint="?attr/colorPrimary"/>
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -362,15 +358,14 @@
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/settings_haptics_picker_title"
-                            android:textStyle="bold"
-                            android:textSize="15sp"
-                            android:textColor="?attr/colorHeading"
+                            android:textSize="16sp"
+                            android:textColor="?attr/colorOnSurface"
                             android:textAlignment="viewStart"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/settings_haptics_picker_subtitle"
-                            android:textColor="@android:color/darker_gray"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="12sp"
                             android:textAlignment="viewStart"/>
                     </LinearLayout>
@@ -399,21 +394,20 @@
                         android:layout_height="24dp"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/undo_24px"
-                        android:tint="@android:color/darker_gray"/>
+                        android:tint="?attr/colorPrimary"/>
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/settings_haptics_reset"
-                        android:textStyle="bold"
-                        android:textSize="15sp"
-                        android:textColor="?attr/colorHeading"
+                        android:textSize="16sp"
+                        android:textColor="?attr/colorOnSurface"
                         android:textAlignment="viewStart"/>
                     <ImageView
                         android:layout_width="14dp"
                         android:layout_height="14dp"
                         android:src="@drawable/ic_arrow_right"
-                        android:tint="@android:color/darker_gray"/>
+                        android:tint="?attr/colorOnSurfaceVariant"/>
                 </LinearLayout>
             </LinearLayout>
 
@@ -426,7 +420,7 @@
                 android:paddingStart="4dp"
                 android:paddingEnd="4dp"
                 android:text="@string/settings_haptics_footer"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="11sp"
                 android:textAlignment="viewStart"/>
         </LinearLayout>

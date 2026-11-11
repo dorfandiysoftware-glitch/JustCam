@@ -410,6 +410,14 @@ public class SettingsHomeFragment extends Fragment {
 
     /** Wire click handlers for all settings rows. */
     private void setupRowHandlers(View root) {
+        View backBtn = root.findViewById(R.id.header_settings_back);
+        if (backBtn != null) {
+            backBtn.setOnClickListener(v -> {
+                if (getActivity() instanceof com.fadcam.MainActivity) {
+                    ((com.fadcam.MainActivity) getActivity()).switchFragment(0, true);
+                }
+            });
+        }
         bindRow(root, R.id.row_haptics_settings,
                 () -> openSubFragment(new HapticsSettingsFragment()));
 

@@ -67,7 +67,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/sort_by"
-        android:textColor="?attr/colorHeading"
+        android:textColor="?attr/colorOnSurface"
         android:paddingTop="16dp"
         android:paddingBottom="8dp"
         android:textStyle="bold"/>
@@ -88,7 +88,7 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="12dp"
                 android:src="@drawable/ic_sort"
-                android:tint="@android:color/darker_gray"/>
+                android:tint="?attr/colorPrimary"/>
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -99,15 +99,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/records_sort_order_title"
-                    android:textColor="?attr/colorHeading"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"
                     android:textAlignment="viewStart"/>
                 <TextView
                     android:id="@+id/row_sort_subtitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="12sp"
                     android:text="@string/sort_latest_first"
                     android:textAlignment="viewStart"/>
@@ -117,7 +116,7 @@
                 android:layout_width="14dp"
                 android:layout_height="14dp"
                 android:src="@drawable/ic_arrow_right"
-                android:tint="@android:color/darker_gray"/>
+                android:tint="?attr/colorOnSurfaceVariant"/>
         </LinearLayout>
 
         <!-- Divider between rows in card -->
@@ -138,7 +137,7 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="12dp"
                 android:src="@drawable/ic_grid"
-                android:tint="@android:color/darker_gray"/>
+                android:tint="?attr/colorPrimary"/>
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -149,15 +148,14 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/records_view_mode_title"
-                    android:textColor="?attr/colorHeading"
-                    android:textStyle="bold"
-                    android:textSize="15sp"
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"
                     android:textAlignment="viewStart"/>
                 <TextView
                     android:id="@+id/row_view_mode_subtitle"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="12sp"
                     android:text="@string/view_mode_grid"
                     android:textAlignment="viewStart"/>
@@ -167,7 +165,7 @@
                 android:layout_width="14dp"
                 android:layout_height="14dp"
                 android:src="@drawable/ic_arrow_right"
-                android:tint="@android:color/darker_gray"/>
+                android:tint="?attr/colorOnSurfaceVariant"/>
         </LinearLayout>
     </LinearLayout>
 
@@ -178,7 +176,7 @@
 
         android:layout_marginStart="14dp"
         android:layout_marginEnd="12dp"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:text="@string/records_sort_helper"/>
 
     <!-- Hide Thumbnails Group Card -->
@@ -189,7 +187,7 @@
         android:paddingTop="16dp"
         android:paddingBottom="8dp"
         android:text="@string/records_hide_thumbnails_title"
-        android:textColor="?attr/colorHeading"
+        android:textColor="?attr/colorOnSurface"
         android:textStyle="bold"/>
 
     <LinearLayout
@@ -209,7 +207,7 @@
                 android:layout_height="24dp"
                 android:layout_marginEnd="12dp"
                 android:src="@drawable/ic_video_placeholder"
-                android:tint="@android:color/darker_gray"/>
+                android:tint="?attr/colorPrimary"/>
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
@@ -220,14 +218,13 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:text="@string/records_hide_thumbnails_row_title"
-                    android:textColor="?attr/colorHeading"
-                    android:textStyle="bold"
-                    android:textSize="15sp"/>
+                    android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"/>
                 <TextView
                     android:id="@+id/row_hide_thumbnails_state"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textColor="@android:color/darker_gray"
+                    android:textColor="?attr/colorOnSurfaceVariant"
                     android:textSize="12sp"
                     android:text="@string/universal_close"/>
             </LinearLayout>
@@ -245,7 +242,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:text="@string/universal_delete"
-        android:textColor="?attr/colorHeading"
+        android:textColor="?attr/colorOnSurface"
         android:paddingTop="16dp"
         android:paddingBottom="8dp"
         android:textStyle="bold"/>
@@ -283,8 +280,7 @@
                     android:layout_height="wrap_content"
                     android:text="@string/delete_all_videos_title"
                     android:textColor="@color/danger_red"
-                    android:textStyle="bold"
-                    android:textSize="15sp"/>
+                    android:textSize="16sp"/>
                 <TextView
                     android:id="@+id/row_delete_all_subtitle"
                     android:layout_width="match_parent"

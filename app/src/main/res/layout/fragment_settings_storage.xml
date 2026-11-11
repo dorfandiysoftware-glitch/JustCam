@@ -73,28 +73,27 @@ app:layout_constraintTop_toTopOf="parent"
                         android:layout_height="24dp"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_custom_location"
-                        android:tint="@android:color/darker_gray"/>
+                        android:tint="?attr/colorPrimary"/>
                     <TextView
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:text="@string/storage_location_title"
-                        android:textStyle="bold"
-                        android:textSize="15sp"
-                        android:textColor="?attr/colorHeading"/>
+                        android:textSize="16sp"
+                        android:textColor="?attr/colorOnSurface"/>
                     <TextView
                         android:id="@+id/value_storage_mode"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="-"
-                        android:textColor="@android:color/darker_gray"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="13sp"/>
                     <ImageView
                         android:layout_width="14dp"
                         android:layout_height="14dp"
                         android:layout_marginStart="12dp"
                         android:src="@drawable/ic_arrow_right"
-                        android:tint="@android:color/darker_gray"/>
+                        android:tint="?attr/colorOnSurfaceVariant"/>
                 </LinearLayout>
             </LinearLayout>
 

@@ -69,17 +69,17 @@
 
             <TextView android:layout_width="24dp" android:layout_height="24dp"
                 android:layout_marginEnd="16dp" android:fontFamily="@font/materialicons"
-                android:text="video_library" android:textColor="?attr/colorHeading"
+                android:text="video_library" android:textColor="?attr/colorOnSurface"
                 android:textSize="18sp" android:gravity="center"/>
 
             <LinearLayout android:layout_width="0dp" android:layout_height="wrap_content"
                 android:layout_weight="1" android:orientation="vertical">
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
-                    android:text="@string/nav_records" android:textColor="?attr/colorHeading"
-                    android:textSize="15sp" android:textStyle="bold"/>
+                    android:text="@string/nav_records" android:textColor="?attr/colorOnSurface"
+                    android:textSize="16sp"/>
                 <TextView android:layout_width="wrap_content" android:layout_height="wrap_content"
                     android:text="@string/sidebar_records_desc"
-                    android:textColor="?attr/pickerTextSecondary" android:textSize="12sp"
+                    android:textColor="?attr/colorOnSurfaceVariant" android:textSize="12sp"
                     android:layout_marginTop="2dp"/>
             </LinearLayout>
 
@@ -87,7 +87,7 @@
                 android:orientation="horizontal" android:gravity="center_vertical">
                 <ImageView android:layout_width="14dp" android:layout_height="14dp"
                     android:layout_marginStart="6dp" android:src="@drawable/ic_arrow_right"
-                    android:tint="@android:color/darker_gray"/>
+                    android:tint="?attr/colorOnSurfaceVariant"/>
             </LinearLayout>
         </LinearLayout>
         </LinearLayout>
@@ -298,7 +298,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/display_settings_title"
-            android:textColor="?attr/colorHeading"
+            android:textColor="?attr/colorOnSurface"
             android:paddingTop="16dp"
             android:paddingBottom="8dp"
             android:textStyle="bold"
@@ -329,7 +329,7 @@
                     android:layout_marginEnd="16dp"
                     android:fontFamily="@font/materialicons"
                     android:text="visibility"
-                    android:textColor="?attr/colorHeading"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"
                     android:gravity="center" />
 
@@ -346,9 +346,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/preview_enabled"
-                        android:textColor="?attr/colorHeading"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="16sp"
                         android:textAlignment="viewStart"
                         android:layout_marginBottom="2dp" />
 
@@ -357,7 +356,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/preview_disabled"
-                        android:textColor="@android:color/darker_gray"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="11sp"
                         android:textAlignment="viewStart" />
                 </LinearLayout>
@@ -393,7 +392,7 @@
                     android:layout_marginEnd="16dp"
                     android:fontFamily="@font/materialicons"
                     android:text="widgets"
-                    android:textColor="?attr/colorHeading"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"
                     android:gravity="center" />
 
@@ -409,9 +408,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/preview_quick_actions_title"
-                        android:textColor="?attr/colorHeading"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="16sp"
                         android:textAlignment="viewStart"
                         android:layout_marginBottom="2dp" />
 
@@ -420,7 +418,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/preview_quick_actions_sub"
-                        android:textColor="@android:color/darker_gray"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="11sp"
                         android:textAlignment="viewStart" />
                 </LinearLayout>
@@ -456,7 +454,7 @@
                     android:layout_marginEnd="16dp"
                     android:fontFamily="@font/materialicons"
                     android:text="grid_on"
-                    android:textColor="?attr/colorHeading"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"
                     android:gravity="center" />
 
@@ -472,9 +470,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/grid_lines_title"
-                        android:textColor="?attr/colorHeading"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="16sp"
                         android:textAlignment="viewStart"
                         android:layout_marginBottom="2dp" />
 
@@ -483,7 +480,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/grid_lines_subtitle"
-                        android:textColor="@android:color/darker_gray"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="11sp"
                         android:textAlignment="viewStart" />
                 </LinearLayout>
@@ -505,7 +502,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="@string/help_section"
-            android:textColor="?attr/colorHeading"
+            android:textColor="?attr/colorOnSurface"
             android:paddingTop="20dp"
             android:paddingBottom="8dp"
             android:textStyle="bold"
@@ -536,7 +533,7 @@
                     android:layout_marginEnd="16dp"
                     android:fontFamily="@font/materialicons"
                     android:text="new_releases"
-                    android:textColor="?attr/colorHeading"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"
                     android:gravity="center" />
 
@@ -558,9 +555,8 @@
                             android:layout_height="wrap_content"
                             android:layout_weight="1"
                             android:text="@string/whats_new_title"
-                            android:textColor="?attr/colorHeading"
-                            android:textSize="15sp"
-                            android:textStyle="bold"
+                            android:textColor="?attr/colorOnSurface"
+                            android:textSize="16sp"
                             android:textAlignment="viewStart"
                             android:layout_marginBottom="2dp" />
 
@@ -585,7 +581,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/whats_new_subtitle"
-                        android:textColor="@android:color/darker_gray"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="11sp"
                         android:textAlignment="viewStart" />
 
@@ -598,7 +594,7 @@
                     android:layout_marginStart="12dp"
                     android:layout_gravity="center_vertical"
                     android:src="@drawable/ic_arrow_right"
-                    android:tint="@android:color/darker_gray" />
+                    android:tint="?attr/colorOnSurfaceVariant" />
 
             </LinearLayout>
 
@@ -626,7 +622,7 @@
                     android:layout_marginEnd="16dp"
                     android:fontFamily="@font/materialicons"
                     android:text="lightbulb"
-                    android:textColor="?attr/colorHeading"
+                    android:textColor="?attr/colorOnSurface"
                     android:textSize="18sp"
                     android:gravity="center" />
 
@@ -642,9 +638,8 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/tips_title"
-                        android:textColor="?attr/colorHeading"
-                        android:textSize="15sp"
-                        android:textStyle="bold"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="16sp"
                         android:textAlignment="viewStart"
                         android:layout_marginBottom="2dp" />
 
@@ -652,7 +647,7 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:text="@string/tips_subtitle"
-                        android:textColor="@android:color/darker_gray"
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="11sp"
                         android:textAlignment="viewStart" />
 
@@ -665,7 +660,7 @@
                     android:layout_marginStart="12dp"
                     android:layout_gravity="center_vertical"
                     android:src="@drawable/ic_arrow_right"
-                    android:tint="@android:color/darker_gray" />
+                    android:tint="?attr/colorOnSurfaceVariant" />
 
             </LinearLayout>
 
@@ -721,7 +716,7 @@
                 android:layout_height="wrap_content"
                 android:layout_marginTop="8dp"
                 android:text="@string/home_sidebar_copyright"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="11sp"
                 android:gravity="center" />
 

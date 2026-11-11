@@ -77,7 +77,7 @@ app:layout_constraintTop_toTopOf="parent"
                         android:layout_height="24dp"
                         android:layout_marginEnd="16dp"
                         android:src="@drawable/ic_volume_up_24"
-                        android:tint="@android:color/darker_gray"/>
+                        android:tint="?attr/colorPrimary"/>
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -87,14 +87,13 @@ app:layout_constraintTop_toTopOf="parent"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/setting_volume_shutter_title"
-                            android:textStyle="bold"
-                            android:textSize="15sp"
-                            android:textColor="?attr/colorHeading"/>
+                            android:textSize="16sp"
+                            android:textColor="?attr/colorOnSurface"/>
                         <TextView
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="@string/setting_volume_shutter_summary"
-                            android:textColor="@android:color/darker_gray"
+                            android:textColor="?attr/colorOnSurfaceVariant"
                             android:textSize="12sp"/>
                     </LinearLayout>
                     <com.fadcam.ui.AvatarToggleView
@@ -114,7 +113,7 @@ app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginStart="8dp"
                 android:layout_marginEnd="8dp"
                 android:text="@string/setting_volume_shutter_footer"
-                android:textColor="@android:color/darker_gray"
+                android:textColor="?attr/colorOnSurfaceVariant"
                 android:textSize="12sp"
                 android:lineSpacingExtra="3dp"/>
         </LinearLayout>

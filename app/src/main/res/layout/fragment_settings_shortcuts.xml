@@ -65,7 +65,7 @@ app:layout_constraintTop_toTopOf="parent"
                 android:layout_marginTop="8dp"
                 android:layout_marginBottom="6dp"
                 android:text="@string/shortcuts_video_category"
-                android:textColor="?attr/colorHeading"
+                android:textColor="?attr/colorOnSurface"
                 android:textStyle="bold" />
 
             <!-- Group card container replicating settings style -->
@@ -381,7 +381,7 @@ app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="14dp"
         android:layout_marginBottom="6dp"
         android:text="@string/shortcuts_picture_category"
-        android:textColor="?attr/colorHeading"
+        android:textColor="?attr/colorOnSurface"
         android:textStyle="bold" />
 
     <LinearLayout
@@ -520,7 +520,7 @@ app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="8dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:textSize="12sp"
         android:text="@string/shortcuts_helper_text"/>
 
@@ -531,7 +531,7 @@ app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="4dp"
         android:layout_marginStart="8dp"
         android:layout_marginEnd="8dp"
-        android:textColor="@android:color/darker_gray"
+        android:textColor="?attr/colorOnSurfaceVariant"
         android:textColorLink="@color/red_theme_accent"
         android:textSize="12sp"
         android:autoLink="web"
@@ -547,7 +547,7 @@ app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="24dp"
         android:layout_marginBottom="6dp"
         android:text="@string/shortcuts_and_widgets"
-        android:textColor="?attr/colorHeading"
+        android:textColor="?attr/colorOnSurface"
         android:textStyle="bold" />
 
     <!-- Widgets group card (dark themed) with full width widgets -->
@@ -592,7 +592,7 @@ app:layout_constraintTop_toTopOf="parent"
                     android:layout_height="18dp"
                     android:layout_marginEnd="8dp"
                     android:src="@drawable/ic_clock_widget"
-                    android:tint="@android:color/darker_gray"/>
+                    android:tint="?attr/colorOnSurfaceVariant"/>
                 <TextView
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
@@ -604,7 +604,7 @@ app:layout_constraintTop_toTopOf="parent"
                     android:layout_width="14dp"
                     android:layout_height="14dp"
                     android:src="@drawable/ic_open_in_new"
-                    android:tint="@android:color/darker_gray"/>
+                    android:tint="?attr/colorOnSurfaceVariant"/>
             </LinearLayout>
         </LinearLayout>
 
