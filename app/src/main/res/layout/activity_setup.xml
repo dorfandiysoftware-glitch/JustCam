@@ -111,6 +111,10 @@
                     android:id="@+id/perm_location"
                     layout="@layout/item_setup_permission" />
 
+                <include
+                    android:id="@+id/perm_battery"
+                    layout="@layout/item_setup_permission" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/setup_grant_all"
                     style="@style/Widget.Material3.Button.TonalButton"

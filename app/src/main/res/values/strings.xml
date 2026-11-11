@@ -3125,4 +3125,6 @@ For the smoothest playback experience, you can use an external player like VLC. 
     <string name="setup_next">Continue</string>
     <string name="setup_finish">Open camera</string>
     <string name="setup_camera_required">Camera permission is required to continue</string>
+    <string name="setup_perm_battery">Battery optimization</string>
+    <string name="setup_perm_battery_desc">Keep background recording alive when the screen is off</string>
 </resources>

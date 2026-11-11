@@ -43,10 +43,14 @@ public class SetupActivity extends AppCompatActivity {
     private View permMic;
     private View permNotifications;
     private View permLocation;
+    private View permBattery;
 
     private final ActivityResultLauncher<String[]> permissionLauncher =
             registerForActivityResult(new ActivityResultContracts.RequestMultiplePermissions(),
-                    result -> refreshPermissionRows());
+                    result -> {
+                        refreshPermissionRows();
+                        requestBatteryExemption();
+                    });
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -68,6 +72,7 @@ public class SetupActivity extends AppCompatActivity {
         permMic = findViewById(R.id.perm_mic);
         permNotifications = findViewById(R.id.perm_notifications);
         permLocation = findViewById(R.id.perm_location);
+        permBattery = findViewById(R.id.perm_battery);
 
         bindRow(permCamera, R.drawable.ic_camera, R.string.setup_perm_camera, R.string.setup_perm_camera_desc);
         bindRow(permMic, R.drawable.ic_mic, R.string.setup_perm_mic, R.string.setup_perm_mic_desc);
@@ -75,6 +80,8 @@ public class SetupActivity extends AppCompatActivity {
                 R.string.setup_perm_notifications_desc);
         bindRow(permLocation, R.drawable.ic_location, R.string.setup_perm_location, R.string.setup_perm_location_desc);
 
+        bindRow(permBattery, R.drawable.ic_check_circle, R.string.setup_perm_battery, R.string.setup_perm_battery_desc);
+        permBattery.setOnClickListener(v -> requestBatteryExemption());
         findViewById(R.id.setup_grant_all).setOnClickListener(v -> requestAll());
         btnBack.setOnClickListener(v -> showStep(step - 1));
         btnNext.setOnClickListener(v -> onNext());
@@ -146,6 +153,30 @@ public class SetupActivity extends AppCompatActivity {
         permissionLauncher.launch(list.toArray(new String[0]));
     }
 
+    private boolean batteryExempt() {
+        android.os.PowerManager pm = (android.os.PowerManager) getSystemService(POWER_SERVICE);
+        return pm == null || pm.isIgnoringBatteryOptimizations(getPackageName());
+    }
+
+    private void requestBatteryExemption() {
+        if (batteryExempt()) return;
+        try {
+            startActivity(new Intent(android.provider.Settings.ACTION_REQUEST_IGNORE_BATTERY_OPTIMIZATIONS,
+                    android.net.Uri.parse("package:" + getPackageName())));
+        } catch (Exception e) {
+            try {
+                startActivity(new Intent(android.provider.Settings.ACTION_IGNORE_BATTERY_OPTIMIZATION_SETTINGS));
+            } catch (Exception ignored) {
+            }
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if (step == STEP_PERMISSIONS) refreshPermissionRows();
+    }
+
     private void refreshPermissionRows() {
         setStatus(permCamera, granted(Manifest.permission.CAMERA));
         setStatus(permMic, granted(Manifest.permission.RECORD_AUDIO));
@@ -154,6 +185,7 @@ public class SetupActivity extends AppCompatActivity {
         setStatus(permNotifications, notif);
         setStatus(permLocation, granted(Manifest.permission.ACCESS_FINE_LOCATION)
                 || granted(Manifest.permission.ACCESS_COARSE_LOCATION));
+        setStatus(permBattery, batteryExempt());
     }
 
     private void setStatus(View row, boolean ok) {
