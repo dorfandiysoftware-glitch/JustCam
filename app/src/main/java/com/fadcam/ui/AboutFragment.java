@@ -195,6 +195,7 @@ public class AboutFragment extends BaseFragment {
         checkUpdatesButton.setTextColor(Color.WHITE);
         checkUpdatesButton.setIconTint(ColorStateList.valueOf(Color.WHITE));
         checkUpdatesButton.setStrokeColor(ColorStateList.valueOf(colorButton));
+        fadSecInfoCard.setVisibility(View.GONE);
         fadSecInfoCard.setCardBackgroundColor(colorDialog);
         fadSecInfoCard.setStrokeColor(colorButton);
         TextView fadSecInfoText = fadSecInfoCard.findViewById(R.id.fadsec_info_text);
@@ -226,6 +227,11 @@ public class AboutFragment extends BaseFragment {
         
         // Setup footer text with Palestine and Pakistan flags
         if (tvAboutFooter != null) {
+            tvAboutFooter.setText("JustCam — based on FadCam (GPL-3.0)");
+            tvAboutFooter.setTextColor(Color.WHITE);
+            if (ivFadSecLabLogo != null) ivFadSecLabLogo.setVisibility(View.GONE);
+        }
+        if (false) {
             String footer = "Made with Palestine at FadSec Lab in Pakistan";
             android.text.SpannableString spannable = new android.text.SpannableString(footer);
             
@@ -307,11 +313,11 @@ public class AboutFragment extends BaseFragment {
                     .append("<font color='" + answerColorHex + "'>").append(answers[i]).append("</font><br><br>");
         }
         privacyInfoContent.setText(Html.fromHtml(qnaContent.toString(), Html.FROM_HTML_MODE_LEGACY));
-        sourceCodeButton.setOnClickListener(v -> openUrl("https://github.com/fadsec-lab/"));
+        sourceCodeButton.setOnClickListener(v -> openUrl("https://github.com/dorfandiysoftware-glitch/JustCam"));
         donateButton.setVisibility(View.GONE);
         checkUpdatesButton.setVisibility(View.GONE);
         emailText.setOnClickListener(v -> sendEmail());
-        discordText.setOnClickListener(v -> openUrl("https://discord.gg/kvAZvdkuuN"));
+        discordText.setVisibility(View.GONE);
         setupPrivacyInfo(privacyInfoCard, scrollView);
 
         // Find text elements with specific content and set their colors

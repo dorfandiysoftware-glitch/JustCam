@@ -18,6 +18,13 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Close
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -87,7 +94,18 @@ fun SettingsScreen(
     showTrash: Boolean,
     onBack: () -> Unit,
     onOpen: (String) -> Unit,
+    onHideTrash: () -> Unit = {},
 ) {
+    var confirmHide by remember { mutableStateOf(false) }
+    if (confirmHide) {
+        AlertDialog(
+            onDismissRequest = { confirmHide = false },
+            title = { Text(stringResource(R.string.trash_settings_hide_dialog_title)) },
+            text = { Text(stringResource(R.string.trash_settings_hide_dialog_message)) },
+            confirmButton = { TextButton(onClick = { confirmHide = false; onHideTrash() }) { Text(stringResource(R.string.trash_settings_hide_dialog_confirm)) } },
+            dismissButton = { TextButton(onClick = { confirmHide = false }) { Text(stringResource(android.R.string.cancel)) } },
+        )
+    }
     val scrollBehavior = TopAppBarDefaults.exitUntilCollapsedScrollBehavior()
     Scaffold(
         modifier = Modifier.nestedScroll(scrollBehavior.nestedScrollConnection),
@@ -130,6 +148,7 @@ fun SettingsScreen(
                             first = index == 0,
                             last = index == items.lastIndex,
                             onClick = { onOpen(item.key) },
+                            onTrailing = if (item.key == "trash") ({ confirmHide = true }) else null,
                         )
                     }
                 }
@@ -139,7 +158,7 @@ fun SettingsScreen(
 }
 
 @Composable
-private fun SettingsRow(item: SettingsItem, first: Boolean, last: Boolean, onClick: () -> Unit) {
+private fun SettingsRow(item: SettingsItem, first: Boolean, last: Boolean, onClick: () -> Unit, onTrailing: (() -> Unit)? = null) {
     val outer = 24.dp
     val inner = 6.dp
     val shape = RoundedCornerShape(
@@ -183,6 +202,11 @@ private fun SettingsRow(item: SettingsItem, first: Boolean, last: Boolean, onCli
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 2,
                     )
+                }
+            }
+            if (onTrailing != null) {
+                IconButton(onClick = onTrailing) {
+                    Icon(Icons.Filled.Close, contentDescription = stringResource(R.string.trash_settings_hide_button), tint = MaterialTheme.colorScheme.onSurfaceVariant)
                 }
             }
         }

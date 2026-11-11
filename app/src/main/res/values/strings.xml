@@ -3,7 +3,7 @@
     <string name="app_icon_description">Choose an icon and name for your app. This will change how it appears on your home screen.</string>
     <string name="check_for_updates">Check for Updates</string>
     <string name="accessibility_thumbnail_progress">%1$d%% watched</string>
-    <string name="fadsec_info">FadCam is part of the FadSec Lab suite. For more information, click on \'view source code\' below.</string>
+    <string name="fadsec_info">JustCam is a fork of FadCam (GPL-3.0). Tap \'view source code\' below for the repository.</string>
 
 
     <string name="app_description">
@@ -25,7 +25,7 @@
     <string name="website_title">Website</string>
     <string name="readme_website_subtitle">Official site</string>
     <string name="privacy_information">Privacy Information</string>
-    <string name="copyright_info"> 2024-2025 https://fadcam.faded.dev\nLicensed under GPL-3.0</string>
+    <string name="copyright_info"> 2024-2025 https://github.com/dorfandiysoftware-glitch/JustCam\nLicensed under GPL-3.0</string>
     <string-array name="video_resolutions_keys">
         <item>7680x4320</item>        <!-- 8K -->
         <item>3840x2160</item>        <!-- 4K -->
@@ -201,11 +201,11 @@
     <string name="home_elapsed_font_doto">Doto</string>
     <string name="home_elapsed_font_doto_desc">Uses the Doto font for a more distinctive digital timer look</string>
     <string name="home_elapsed_flag_option">Flag accent</string>
-    <string name="home_elapsed_flag_option_desc">Show or hide the FadSec Lab flag accent behind the timer</string>
-    <string name="home_elapsed_flag_helper">Choose whether the FadSec Lab flag accent is shown behind the elapsed timer.</string>
-    <string name="home_elapsed_flag_show">Show FadSec Lab flag (Default)</string>
+    <string name="home_elapsed_flag_option_desc">Show or hide the flag accent behind the timer</string>
+    <string name="home_elapsed_flag_helper">Choose whether the flag accent is shown behind the elapsed timer.</string>
+    <string name="home_elapsed_flag_show">Show flag (Default)</string>
     <string name="home_elapsed_flag_show_desc">Display the branded flag accent behind the timer</string>
-    <string name="home_elapsed_flag_hide">Hide FadSec Lab flag</string>
+    <string name="home_elapsed_flag_hide">Hide flag</string>
     <string name="home_elapsed_flag_hide_desc">Keep the elapsed timer area clean without the flag accent</string>
     <string name="home_elapsed_background_option">Background</string>
     <string name="home_elapsed_background_option_desc">Choose whether the elapsed timer sits on a black, white, or transparent card</string>
@@ -916,7 +916,7 @@
     <string name="widget_black_background_title">Black Background</string>
     <string name="widget_arabic_date_title">Arabic Date</string>
     <string name="widget_arabic_date_format_title">Arabic Date Format</string>
-    <string name="widget_branding_title">FadSecLab Branding</string>
+    <string name="widget_branding_title">JustCam Branding</string>
 
     <!-- Widget Option Descriptions -->
     <string name="widget_time_format_12h">12-hour (3:30 PM)</string>
@@ -2311,7 +2311,7 @@ For the smoothest playback experience, you can use an external player like VLC. 
     <string name="trash_settings_info">This feature was already available — just hidden behind a long-press on the FadCam logo in the top bar of the home screen. We\'ve surfaced it here so it\'s easier to discover.</string>
     <string name="trash_settings_hide_button">Hide this section</string>
     <string name="trash_settings_hide_dialog_title">Hide Trash section?</string>
-    <string name="trash_settings_hide_dialog_message">The Trash section will disappear from Settings. To bring it back, open Trash by long-pressing the FadCam logo in the top bar of the home screen, then turn on \"Show Trash in Settings\" inside.</string>
+    <string name="trash_settings_hide_dialog_message">The Trash section will disappear from Settings. To bring it back, open Trash by long-pressing the JustCam logo in the top bar of the home screen, then turn on \"Show Trash in Settings\" inside.</string>
     <string name="trash_settings_hide_dialog_confirm">Hide</string>
 
     <!-- Trash: Show in Settings toggle -->
@@ -2377,7 +2377,7 @@ For the smoothest playback experience, you can use an external player like VLC. 
     <!-- Home sidebar branding -->
     <string name="home_sidebar_discord">Discord</string>
     <string name="home_sidebar_discord_sub">Join the community</string>
-    <string name="home_sidebar_copyright" translatable="false">© FadSec Lab 2024 – 2026</string>
+    <string name="home_sidebar_copyright" translatable="false">JustCam · based on FadCam (GPL-3.0)</string>
 
     <!-- Privacy Black Mode Settings -->
     <string name="privacy_black_mode_title">Privacy Black Screen</string>
@@ -2889,7 +2889,7 @@ For the smoothest playback experience, you can use an external player like VLC. 
     <string name="settings_location_update_interval_5s">5.0 seconds</string>
 
     <!-- Annotation toolbar -->
-    <string name="annotation_by_fadsec_lab">by FadSec Lab</string>
+    <string name="annotation_by_fadsec_lab">by JustCam</string>
     <string name="annotation_quick_access">Quick Access</string>
     <string name="annotation_annotate">Annotate</string>
     <string name="annotation_enable_tools">Enable tools</string>

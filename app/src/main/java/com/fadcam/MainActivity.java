@@ -358,6 +358,7 @@ public class MainActivity extends AppCompatActivity {
         }
         super.onCreate(savedInstanceState);
         swipeTouchSlop = ViewConfiguration.get(this).getScaledTouchSlop();
+        com.fadcam.ui.compose.ComposeWarmup.run(this);
 
         // Modern back handling (onBackPressed override is deprecated in API 33).
         getOnBackPressedDispatcher().addCallback(this, new androidx.activity.OnBackPressedCallback(true) {

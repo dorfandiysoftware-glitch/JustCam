@@ -4,6 +4,9 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.fragment.app.Fragment
@@ -37,12 +40,14 @@ class SettingsComposeFragment : Fragment() {
         val prefs = SharedPreferencesManager.getInstance(requireContext())
         val theme = prefs.sharedPreferences.getString(Constants.PREF_APP_THEME, Constants.DEFAULT_APP_THEME)
         val amoled = theme == "Faded Night"
+        var showTrash by mutableStateOf(prefs.isShowTrashInSettings)
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
                 JustCamTheme(amoled = amoled) {
                     SettingsScreen(
-                        showTrash = prefs.isShowTrashInSettings,
+                        showTrash = showTrash,
+                        onHideTrash = { prefs.setShowTrashInSettings(false); showTrash = false },
                         onBack = {
                             (activity as? MainActivity)?.switchFragment(0, true)
                         },
