@@ -33,7 +33,7 @@ public class ViewPagerAdapter extends FragmentStateAdapter {
                 return new RecordsFragment();
             case 4:
                 // Phase 1: Use new SettingsHomeFragment (legacy fragment accessible from inside)
-                return new SettingsHomeFragment();
+                return new com.fadcam.ui.compose.SettingsComposeFragment();
             default:
                 return new HomeFragment();
         }

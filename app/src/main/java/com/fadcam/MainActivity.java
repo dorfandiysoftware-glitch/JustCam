@@ -2169,7 +2169,7 @@ public class MainActivity extends AppCompatActivity {
                 newFragment = new RecordsFragment();
                 break;
             case 4:
-                newFragment = new com.fadcam.ui.SettingsHomeFragment();
+                newFragment = new com.fadcam.ui.compose.SettingsComposeFragment();
                 break;
             default:
                 newFragment = new com.fadcam.ui.HomeFragment();

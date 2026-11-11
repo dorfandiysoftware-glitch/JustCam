@@ -2,6 +2,8 @@ import java.util.Properties
 
 plugins {
     alias(libs.plugins.androidApplication)
+    id("org.jetbrains.kotlin.android")
+    id("org.jetbrains.kotlin.plugin.compose")
 }
 
 android {
@@ -129,6 +131,7 @@ android {
     }
 
     buildFeatures {
+        compose = true
         buildConfig = true
     }
 
@@ -164,6 +167,10 @@ dependencies {
     implementation(libs.gson)
     implementation(libs.lottie)
     implementation(libs.material)
+    implementation(platform("androidx.compose:compose-bom:2025.10.01"))
+    implementation("androidx.compose.ui:ui")
+    implementation("androidx.compose.material3:material3")
+    implementation("androidx.compose.foundation:foundation")
     implementation(libs.navigation.fragment.ktx)
     implementation(libs.navigation.ui.ktx)
     implementation(libs.okhttp)
