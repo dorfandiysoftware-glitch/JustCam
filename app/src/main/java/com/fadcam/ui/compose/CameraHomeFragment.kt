@@ -213,7 +213,7 @@ class CameraHomeFragment : Fragment() {
                 Constants.BROADCAST_ON_SCREEN_RECORDING_RESUMED, Constants.BROADCAST_ON_SCREEN_RECORDING_STATE_CALLBACK,
             ).forEach { addAction(it) }
         }
-        ContextCompat.registerReceiver(requireContext(), receiver, f, ContextCompat.RECEIVER_NOT_EXPORTED)
+        ContextCompat.registerReceiver(requireContext(), receiver, f, ContextCompat.RECEIVER_EXPORTED)
         receiverRegistered = true
         // Ask running services for their state (never starts an idle one).
         if (prefs.isRecordingInProgress) {
@@ -260,6 +260,33 @@ class CameraHomeFragment : Fragment() {
         }
     }
 
+    private var startingSince = 0L
+
+    /** Safety net: keep UI in sync with persisted service state even if a broadcast is missed. */
+    private fun syncFromPrefs(now: Long) {
+        if (!dualActive) {
+            val r = prefs.isRecordingInProgress
+            if (r && camState == RecordingState.NONE) {
+                camState = RecordingState.IN_PROGRESS
+                if (startElapsed == 0L) startElapsed = now
+            } else if (!r && (camState == RecordingState.IN_PROGRESS || camState == RecordingState.PAUSED)) {
+                camState = RecordingState.NONE; startElapsed = 0
+            } else if (camState == RecordingState.STARTING) {
+                if (r) { camState = RecordingState.IN_PROGRESS; if (startElapsed == 0L) startElapsed = now }
+                else if (now - startingSince > 8000) camState = RecordingState.NONE
+            }
+        }
+        val sr = prefs.screenRecordingState
+        if (sr == "IN_PROGRESS" || sr == "PAUSED") {
+            if (screenState == ScreenRecordingState.NONE) {
+                screenState = if (sr == "PAUSED") ScreenRecordingState.PAUSED else ScreenRecordingState.IN_PROGRESS
+                if (startElapsed == 0L) startElapsed = now
+            }
+        } else if (screenState != ScreenRecordingState.NONE && screenState != ScreenRecordingState.STOPPING) {
+            screenState = ScreenRecordingState.NONE; startElapsed = 0
+        }
+    }
+
     private fun hasPerm(p: String) = ContextCompat.checkSelfPermission(requireContext(), p) == PackageManager.PERMISSION_GRANTED
 
     private fun startCamera() {
@@ -272,6 +299,10 @@ class CameraHomeFragment : Fragment() {
                 Intent(ctx, DualCameraRecordingService::class.java).setAction(Constants.INTENT_ACTION_START_DUAL_RECORDING))
             return
         }
+        camState = RecordingState.STARTING
+        startingSince = SystemClock.elapsedRealtime()
+        startElapsed = 0
+        pausedAccum = 0; pauseStartedAt = 0
         val i = Intent(ctx, RecordingService::class.java).setAction(Constants.INTENT_ACTION_START_RECORDING)
         i.putExtra(Constants.INTENT_EXTRA_INITIAL_TORCH_STATE, torchOn)
         i.putExtra("SURFACE", surface?.takeIf { it.isValid })
@@ -397,7 +428,13 @@ class CameraHomeFragment : Fragment() {
     @Composable
     private fun CameraScreen() {
         var now by mutableLongStateOf(SystemClock.elapsedRealtime())
-        androidx.compose.runtime.LaunchedEffect(Unit) { while (true) { now = SystemClock.elapsedRealtime(); delay(500) } }
+        androidx.compose.runtime.LaunchedEffect(Unit) {
+            while (true) {
+                now = SystemClock.elapsedRealtime()
+                syncFromPrefs(now)
+                delay(400)
+            }
+        }
         val active = if (mode == 0) camRecording else if (mode == 1) screenRecording else false
         val paused = camState == RecordingState.PAUSED && mode == 0 || screenState == ScreenRecordingState.PAUSED && mode == 1
         val elapsed = if (active && startElapsed > 0) {
@@ -483,7 +520,7 @@ class CameraHomeFragment : Fragment() {
 
     @Composable
     private fun Viewfinder() {
-        Box(Modifier.fillMaxSize().padding(top = 64.dp, bottom = 210.dp, start = 12.dp, end = 12.dp).clip(RoundedCornerShape(28.dp)).background(Color(0xFF101010))) {
+        Box(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(top = 60.dp, bottom = 190.dp, start = 12.dp, end = 12.dp).clip(RoundedCornerShape(28.dp)).background(Color(0xFF101010))) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx ->
