@@ -239,7 +239,7 @@ class CameraHomeFragment : Fragment() {
     fun swipeMode(delta: Int): Boolean {
         val n = mode + delta
         if (n < 0 || n > 2) return false
-        setMode(n)
+        selectMode(n)
         return true
     }
 
@@ -247,7 +247,7 @@ class CameraHomeFragment : Fragment() {
     fun handleVolumeShutterClick() { if (mode == 0) capturePhoto() }
     fun handleVolumeShutterCameraSwitch() { if (mode == 0) switchCamera() }
 
-    private fun setMode(m: Int) {
+    private fun selectMode(m: Int) {
         mode = m
         prefs.currentRecordingMode = when (m) { 1 -> Constants.MODE_FADREC; 2 -> Constants.MODE_FADMIC; else -> Constants.MODE_FADCAM }
     }
@@ -531,7 +531,7 @@ class CameraHomeFragment : Fragment() {
                     fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
                     modifier = Modifier.clip(RoundedCornerShape(50))
                         .background(if (sel) MaterialTheme.colorScheme.primary else Color.Transparent)
-                        .clickable(enabled = enabled) { setMode(i) }
+                        .clickable(enabled = enabled) { selectMode(i) }
                         .padding(horizontal = 16.dp, vertical = 8.dp),
                 )
             }
