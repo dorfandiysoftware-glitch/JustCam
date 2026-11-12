@@ -50,9 +50,9 @@ private fun ColorScheme.amoled(): ColorScheme = copy(
 
 /** JustCam Material 3 theme: Material You on Android 12+, teal fallback, optional true black. */
 @Composable
-fun JustCamTheme(amoled: Boolean = false, content: @Composable () -> Unit) {
+fun JustCamTheme(amoled: Boolean = false, dynamic: Boolean = true, content: @Composable () -> Unit) {
     val context = LocalContext.current
-    var scheme = if (!amoled && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
+    var scheme = if (dynamic && Build.VERSION.SDK_INT >= Build.VERSION_CODES.S) {
         dynamicDarkColorScheme(context)
     } else {
         JustCamDark
@@ -60,3 +60,15 @@ fun JustCamTheme(amoled: Boolean = false, content: @Composable () -> Unit) {
     if (amoled) scheme = scheme.amoled()
     MaterialTheme(colorScheme = scheme, content = content)
 }
+
+/** Theme driven by the saved preferences (Material You on/off, true black on/off). */
+@Composable
+fun JustCamAppTheme(content: @Composable () -> Unit) {
+    val ctx = LocalContext.current
+    val p = com.fadcam.SharedPreferencesManager.getInstance(ctx).sharedPreferences
+    val amoled = p.getString(com.fadcam.Constants.PREF_APP_THEME, com.fadcam.Constants.DEFAULT_APP_THEME) == "Faded Night"
+    val dynamic = p.getBoolean(PREF_DYNAMIC_COLORS, true)
+    JustCamTheme(amoled = amoled, dynamic = dynamic, content = content)
+}
+
+const val PREF_DYNAMIC_COLORS = "jc_dynamic_colors"

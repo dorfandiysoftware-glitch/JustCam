@@ -3135,4 +3135,9 @@ For the smoothest playback experience, you can use an external player like VLC. 
     <string name="jc_mute">Mute</string>
     <string name="jc_tap_preview">Tap to show preview</string>
     <string name="jc_dual_no_preview">Dual mode records without preview</string>
+    <string name="jc_theme_dynamic">Material You colors</string>
+    <string name="jc_theme_dynamic_sub">Take accent colors from your wallpaper</string>
+    <string name="jc_theme_dynamic_unsupported">Requires Android 12 or newer</string>
+    <string name="jc_theme_black">True black</string>
+    <string name="jc_theme_black_sub">Pure black backgrounds, saves power on OLED screens</string>
 </resources>

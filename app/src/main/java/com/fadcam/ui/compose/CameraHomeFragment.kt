@@ -194,10 +194,9 @@ class CameraHomeFragment : Fragment() {
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val amoled = prefs.sharedPreferences.getString(Constants.PREF_APP_THEME, Constants.DEFAULT_APP_THEME) == "Faded Night"
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
-            setContent { JustCamTheme(amoled = amoled) { CameraScreen() } }
+            setContent { JustCamAppTheme { CameraScreen() } }
         }
     }
 
@@ -233,6 +232,16 @@ class CameraHomeFragment : Fragment() {
         }
     }
 
+    override fun onDestroyView() {
+        super.onDestroyView()
+        val c = context
+        if (c != null && previewOnly && !camRecording) {
+            c.startService(Intent(c, RecordingService::class.java).setAction(Constants.INTENT_ACTION_STOP_PREVIEW_ONLY))
+            previewOnly = false
+        }
+        surface = null; texture = null
+    }
+
     override fun onStop() {
         super.onStop()
         if (receiverRegistered) { runCatching { requireContext().unregisterReceiver(receiver) }; receiverRegistered = false }
@@ -251,7 +260,10 @@ class CameraHomeFragment : Fragment() {
     fun handleVolumeShutterCameraSwitch() { if (mode == 0) switchCamera() }
 
     private fun selectMode(m: Int) {
+        val prev = mode
         mode = m
+        if (prev == 0 && m != 0 && previewOnly && !camRecording) togglePreviewOnly()
+        if (m == 0) autoPreview()
         prefs.currentRecordingMode = when (m) { 1 -> Constants.MODE_FADREC; 2 -> Constants.MODE_FADMIC; else -> Constants.MODE_FADCAM }
     }
 
@@ -380,6 +392,13 @@ class CameraHomeFragment : Fragment() {
         }
     }
 
+    /** Show the live preview automatically whenever the camera screen is idle. */
+    private fun autoPreview() {
+        if (mode != 0 || dualMode || camRecording || previewOnly || surface == null || context == null) return
+        if (!hasPerm(Manifest.permission.CAMERA)) return
+        view?.postDelayed({ if (isAdded && mode == 0 && !dualMode && !camRecording && !previewOnly && surface?.isValid == true) togglePreviewOnly() }, 250)
+    }
+
     private fun togglePreviewOnly() {
         if (camRecording) return
         val ctx = requireContext()
@@ -440,7 +459,7 @@ class CameraHomeFragment : Fragment() {
     // ---- Compose UI ----
     @Composable
     private fun CameraScreen() {
-        var now by mutableLongStateOf(SystemClock.elapsedRealtime())
+        var now by androidx.compose.runtime.remember { mutableLongStateOf(SystemClock.elapsedRealtime()) }
         androidx.compose.runtime.LaunchedEffect(Unit) {
             while (true) {
                 now = SystemClock.elapsedRealtime()
@@ -455,25 +474,25 @@ class CameraHomeFragment : Fragment() {
             (now - startElapsed - pausedAccum - p).coerceAtLeast(0)
         } else 0L
 
-        Column(Modifier.fillMaxSize().background(Color.Black).statusBarsPadding().navigationBarsPadding()) {
+        Column(Modifier.fillMaxSize().background(MaterialTheme.colorScheme.surface).statusBarsPadding().navigationBarsPadding()) {
             // Top bar
             Row(
                 Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                IconButton(onClick = { openSidebar() }) { Icon(Icons.Filled.Menu, null, tint = Color.White) }
+                IconButton(onClick = { openSidebar() }) { Icon(Icons.Filled.Menu, null, tint = MaterialTheme.colorScheme.onSurface) }
                 Box(Modifier.weight(1f), contentAlignment = Alignment.Center) {
                     if (active) {
-                        Surface(shape = RoundedCornerShape(50), color = Color(0x99000000)) {
+                        Surface(shape = RoundedCornerShape(50), color = MaterialTheme.colorScheme.surfaceContainerHighest) {
                             Row(Modifier.padding(horizontal = 14.dp, vertical = 6.dp), verticalAlignment = Alignment.CenterVertically) {
                                 Box(Modifier.size(10.dp).clip(CircleShape).background(if (paused) Color(0xFFFFB300) else Color(0xFFFF3B30)))
                                 Spacer(Modifier.width(8.dp))
-                                Text(format(elapsed), color = Color.White, fontSize = 16.sp, fontWeight = FontWeight.Medium)
+                                Text(format(elapsed), color = MaterialTheme.colorScheme.onSurface, fontSize = 16.sp, fontWeight = FontWeight.Medium)
                             }
                         }
                     }
                 }
-                IconButton(onClick = { openSettings() }) { Icon(Icons.Filled.Settings, null, tint = Color.White) }
+                IconButton(onClick = { openSettings() }) { Icon(Icons.Filled.Settings, null, tint = MaterialTheme.colorScheme.onSurface) }
             }
             Box(Modifier.weight(1f).fillMaxWidth()) {
                 AnimatedContent(targetState = mode, label = "mode") { m ->
@@ -504,9 +523,7 @@ class CameraHomeFragment : Fragment() {
                     }
                     if (active) {
                         Row(verticalAlignment = Alignment.CenterVertically) {
-                            RoundButton(if (paused) R.drawable.play_button_rounded else R.drawable.pause_rounded, false) {
-                                if (mode == 0) pauseResumeCamera() else pauseResumeScreen()
-                            }
+                            Spacer(Modifier.size(56.dp))
                             Spacer(Modifier.width(16.dp))
                             Shutter(recording = true) { primaryAction() }
                             Spacer(Modifier.width(16.dp))
@@ -538,7 +555,7 @@ class CameraHomeFragment : Fragment() {
     @Composable
     private fun Viewfinder() {
         Box(Modifier.fillMaxSize().padding(12.dp), contentAlignment = Alignment.Center) {
-          Box(Modifier.fillMaxHeight().aspectRatio(9f / 16f, matchHeightConstraintsFirst = true).clip(RoundedCornerShape(28.dp)).background(Color(0xFF101010))) {
+          Box(Modifier.fillMaxHeight().aspectRatio(9f / 16f, matchHeightConstraintsFirst = true).clip(RoundedCornerShape(28.dp)).background(MaterialTheme.colorScheme.surfaceContainerLow)) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx ->
@@ -546,7 +563,7 @@ class CameraHomeFragment : Fragment() {
                         texture = tv
                         tv.surfaceTextureListener = object : TextureView.SurfaceTextureListener {
                             override fun onSurfaceTextureAvailable(st: SurfaceTexture, w: Int, h: Int) {
-                                surface = Surface(st); pushSurface()
+                                surface = Surface(st); pushSurface(); autoPreview()
                             }
                             override fun onSurfaceTextureSizeChanged(st: SurfaceTexture, w: Int, h: Int) {}
                             override fun onSurfaceTextureDestroyed(st: SurfaceTexture): Boolean {
@@ -560,7 +577,7 @@ class CameraHomeFragment : Fragment() {
                 },
             )
             if (!camRecording && !previewOnly) {
-                Text(stringResource(if (dualMode) R.string.jc_dual_no_preview else R.string.jc_tap_preview), color = Color(0x99FFFFFF), modifier = Modifier.align(Alignment.Center).clickable { if (!dualMode) togglePreviewOnly() }.padding(16.dp))
+                Text(stringResource(if (dualMode) R.string.jc_dual_no_preview else R.string.jc_tap_preview), color = MaterialTheme.colorScheme.onSurfaceVariant, modifier = Modifier.align(Alignment.Center).clickable { if (!dualMode) togglePreviewOnly() }.padding(16.dp))
             }
           }
         }
@@ -569,9 +586,9 @@ class CameraHomeFragment : Fragment() {
     @Composable
     private fun ModePlaceholder(icon: Int, text: Int) {
         Column(Modifier.fillMaxSize(), verticalArrangement = Arrangement.Center, horizontalAlignment = Alignment.CenterHorizontally) {
-            Icon(painterResource(icon), null, tint = Color(0x66FFFFFF), modifier = Modifier.size(72.dp))
+            Icon(painterResource(icon), null, tint = MaterialTheme.colorScheme.outline, modifier = Modifier.size(72.dp))
             Spacer(Modifier.size(16.dp))
-            Text(stringResource(text), color = Color(0xB3FFFFFF), fontSize = 16.sp, modifier = Modifier.padding(horizontal = 40.dp))
+            Text(stringResource(text), color = MaterialTheme.colorScheme.onSurfaceVariant, fontSize = 16.sp, modifier = Modifier.padding(horizontal = 40.dp))
         }
     }
 
@@ -583,7 +600,7 @@ class CameraHomeFragment : Fragment() {
                 val sel = i == mode
                 Text(
                     n,
-                    color = if (sel) MaterialTheme.colorScheme.onPrimary else Color.White,
+                    color = if (sel) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurfaceVariant,
                     fontWeight = if (sel) FontWeight.Bold else FontWeight.Normal,
                     modifier = Modifier.clip(RoundedCornerShape(50))
                         .background(if (sel) MaterialTheme.colorScheme.primary else Color.Transparent)
@@ -597,7 +614,7 @@ class CameraHomeFragment : Fragment() {
     @Composable
     private fun Shutter(recording: Boolean, onClick: () -> Unit) {
         Box(
-            Modifier.size(76.dp).border(BorderStroke(4.dp, Color.White), CircleShape).padding(7.dp).clip(CircleShape).clickable(onClick = onClick),
+            Modifier.size(76.dp).border(BorderStroke(4.dp, MaterialTheme.colorScheme.onSurface), CircleShape).padding(7.dp).clip(CircleShape).clickable(onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
             Box(
@@ -611,11 +628,11 @@ class CameraHomeFragment : Fragment() {
     private fun RoundButton(icon: Int, selected: Boolean, onClick: () -> Unit) {
         Box(
             Modifier.size(52.dp).clip(CircleShape)
-                .background(if (selected) MaterialTheme.colorScheme.primaryContainer else Color(0x66000000))
+                .background(if (selected) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh)
                 .clickable(onClick = onClick),
             contentAlignment = Alignment.Center,
         ) {
-            Icon(painterResource(icon), null, tint = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else Color.White, modifier = Modifier.size(24.dp))
+            Icon(painterResource(icon), null, tint = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onSurface, modifier = Modifier.size(24.dp))
         }
     }
 
@@ -623,10 +640,10 @@ class CameraHomeFragment : Fragment() {
     private fun Chip(text: String, selected: Boolean, onClick: () -> Unit) {
         Text(
             text,
-            color = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else Color.White,
+            color = if (selected) MaterialTheme.colorScheme.onSecondaryContainer else MaterialTheme.colorScheme.onSurfaceVariant,
             fontSize = 13.sp,
             modifier = Modifier.clip(RoundedCornerShape(50))
-                .background(if (selected) MaterialTheme.colorScheme.secondaryContainer else Color(0x66000000))
+                .background(if (selected) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surfaceContainerHigh)
                 .clickable(onClick = onClick).padding(horizontal = 14.dp, vertical = 7.dp),
         )
     }

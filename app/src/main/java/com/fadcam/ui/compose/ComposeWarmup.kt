@@ -15,7 +15,7 @@ object ComposeWarmup {
                 alpha = 0f
                 isClickable = false
                 setContent {
-                    JustCamTheme(amoled = false) {
+                    JustCamAppTheme {
                         SettingsScreen(showTrash = true, onBack = {}, onOpen = {})
                     }
                 }

@@ -1563,7 +1563,8 @@ public class MainActivity extends AppCompatActivity {
     private void applyDynamicColors(String themeName) {
         try {
             boolean amoled = "Faded Night".equals(themeName) || "AMOLED".equalsIgnoreCase(themeName);
-            if (!amoled) {
+            boolean dyn = sharedPreferencesManager == null || sharedPreferencesManager.sharedPreferences.getBoolean("jc_dynamic_colors", true);
+            if (!amoled && dyn) {
                 com.google.android.material.color.DynamicColors.applyToActivityIfAvailable(this);
             }
         } catch (Exception e) {

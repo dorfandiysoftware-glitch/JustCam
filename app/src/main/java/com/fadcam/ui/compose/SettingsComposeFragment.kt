@@ -38,21 +38,32 @@ class SettingsComposeFragment : Fragment() {
         inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?
     ): View {
         val prefs = SharedPreferencesManager.getInstance(requireContext())
-        val theme = prefs.sharedPreferences.getString(Constants.PREF_APP_THEME, Constants.DEFAULT_APP_THEME)
-        val amoled = theme == "Faded Night"
         var showTrash by mutableStateOf(prefs.isShowTrashInSettings)
+        val backCb = object : androidx.activity.OnBackPressedCallback(false) {
+            override fun handleOnBackPressed() { page = null; isEnabled = false }
+        }
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, backCb)
         return ComposeView(requireContext()).apply {
             setViewCompositionStrategy(ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed)
             setContent {
-                JustCamTheme(amoled = amoled) {
+                JustCamAppTheme {
+                  if (page == "appearance") {
+                    AppearanceScreen(
+                        prefs = prefs,
+                        onBack = { page = null; backCb.isEnabled = false },
+                        onThemeChanged = { (activity as? MainActivity)?.applyThemeFromSettings(it) },
+                        onLanguage = { (activity as? MainActivity)?.applyLanguage(it) },
+                    )
+                  } else {
                     SettingsScreen(
                         showTrash = showTrash,
                         onHideTrash = { prefs.setShowTrashInSettings(false); showTrash = false },
                         onBack = {
                             (activity as? MainActivity)?.switchFragment(0, true)
                         },
-                        onOpen = { open(it) },
+                        onOpen = { open(it, backCb) },
                     )
+                  }
                 }
             }
         }
@@ -61,13 +72,15 @@ class SettingsComposeFragment : Fragment() {
     private fun sub(fragment: Fragment) =
         OverlayNavUtil.show(requireActivity(), fragment, fragment.javaClass.simpleName)
 
-    private fun open(key: String) {
+    private var page by mutableStateOf<String?>(null)
+
+    private fun open(key: String, backCb: androidx.activity.OnBackPressedCallback) {
         when (key) {
+            "appearance" -> { page = "appearance"; backCb.isEnabled = true }
             "video" -> sub(VideoSettingsFragment())
             "audio" -> sub(AudioSettingsFragment())
             "watermark" -> sub(WatermarkSettingsFragment())
             "screen" -> sub(ScreenRecordingSettingsFragment())
-            "appearance" -> sub(AppearanceSettingsFragment())
             "player" -> sub(VideoPlayerSettingsFragment())
             "storage" -> sub(StorageSettingsFragment())
             "notifications" -> sub(NotificationSettingsFragment())
