@@ -3127,4 +3127,11 @@ For the smoothest playback experience, you can use an external player like VLC. 
     <string name="setup_camera_required">Camera permission is required to continue</string>
     <string name="setup_perm_battery">Battery optimization</string>
     <string name="setup_perm_battery_desc">Keep background recording alive when the screen is off</string>
+    <string name="jc_photo_hint">Turn on preview or start recording to take a photo</string>
+    <string name="jc_fadrec_hint">Press the button to record your screen</string>
+    <string name="jc_fadmic_soon">FadMic is coming soon</string>
+    <string name="jc_preview">Preview</string>
+    <string name="jc_dual">Dual</string>
+    <string name="jc_mute">Mute</string>
+    <string name="jc_tap_preview">Tap to show preview</string>
 </resources>

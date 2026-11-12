@@ -292,38 +292,6 @@ public class StorageSettingsFragment extends Fragment {
      * Refreshes the HomeFragment stats widget after storage location changes
      */
     private void refreshHomeFragmentStats(com.fadcam.MainActivity mainActivity) {
-        try {
-            // Try to find HomeFragment
-            String[] possibleTags = {"f0", "f1", "f2"}; // Home could be at different positions
-            boolean refreshSuccess = false;
-            
-            for (String tag : possibleTags) {
-                androidx.fragment.app.Fragment fragment = mainActivity.getSupportFragmentManager().findFragmentByTag(tag);
-                if (fragment instanceof com.fadcam.ui.HomeFragment) {
-                    ((com.fadcam.ui.HomeFragment) fragment).refreshStats();
-                    FLog.i(TAG, "Successfully refreshed HomeFragment stats with tag: " + tag);
-                    refreshSuccess = true;
-                    break;
-                }
-            }
-            
-            // Try iteration if tag method failed
-            if (!refreshSuccess) {
-                for (androidx.fragment.app.Fragment fragment : mainActivity.getSupportFragmentManager().getFragments()) {
-                    if (fragment instanceof com.fadcam.ui.HomeFragment) {
-                        ((com.fadcam.ui.HomeFragment) fragment).refreshStats();
-                        FLog.i(TAG, "Successfully refreshed HomeFragment stats by iteration.");
-                        refreshSuccess = true;
-                        break;
-                    }
-                }
-            }
-            
-            if (!refreshSuccess) {
-                FLog.w(TAG, "Could not find HomeFragment to refresh stats after storage change.");
-            }
-        } catch (Exception e) {
-            FLog.e(TAG, "Failed to refresh HomeFragment stats", e);
-        }
+        // Home screen has no stats widget any more.
     }
 }

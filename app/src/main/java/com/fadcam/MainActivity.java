@@ -29,7 +29,7 @@ import androidx.appcompat.app.AppCompatDelegate;
 import androidx.fragment.app.Fragment;
 
 import com.fadcam.ui.RecordsFragment;
-import com.fadcam.ui.HomeFragment;
+import com.fadcam.ui.compose.CameraHomeFragment;
 import com.fadcam.ui.SettingsHomeFragment;
 import com.fadcam.ui.utils.NewFeatureManager;
 import com.fadcam.utils.RuntimeCompat;
@@ -794,8 +794,8 @@ public class MainActivity extends AppCompatActivity {
                     if (currentFragmentPosition == 0) {
                         androidx.fragment.app.Fragment home = getSupportFragmentManager()
                                 .findFragmentByTag(getFragmentTagForPosition(0));
-                        boolean moved = home instanceof com.fadcam.ui.HomeFragment
-                                && ((com.fadcam.ui.HomeFragment) home).swipeMode(modeDelta);
+                        boolean moved = home instanceof com.fadcam.ui.compose.CameraHomeFragment
+                                && ((com.fadcam.ui.compose.CameraHomeFragment) home).swipeMode(modeDelta);
                         if (!moved && isSwipeBack) {
                             openHomeSidebarFromSwipe();
                         }
@@ -830,7 +830,7 @@ public class MainActivity extends AppCompatActivity {
             androidx.fragment.app.FragmentManager fm = getSupportFragmentManager();
             String tag = getFragmentTagForPosition(0);
             androidx.fragment.app.Fragment frag = fm.findFragmentByTag(tag);
-            if (frag instanceof com.fadcam.ui.HomeFragment) {
+            if (frag instanceof com.fadcam.ui.compose.CameraHomeFragment) {
                 com.fadcam.ui.HomeSidebarFragment sidebar = com.fadcam.ui.HomeSidebarFragment.newInstance();
                 sidebar.show(fm, "HomeSidebar");
             }
@@ -1225,12 +1225,6 @@ public class MainActivity extends AppCompatActivity {
         
         // D-pad right: navigate to next tab
         if (keyCode == KeyEvent.KEYCODE_DPAD_RIGHT) {
-            if (currentFragment instanceof HomeFragment) {
-                HomeFragment homeFragment = (HomeFragment) currentFragment;
-                if (homeFragment.onKeyDown(keyCode, event)) {
-                    return true; // Fragment consumed it (e.g., dialog navigation)
-                }
-            }
             // Switch to next tab if not at end
             if (currentPos < 4) {
                 switchFragment(currentPos + 1, true);
@@ -1241,12 +1235,6 @@ public class MainActivity extends AppCompatActivity {
         
         // D-pad left: navigate to previous tab or stay on home
         if (keyCode == KeyEvent.KEYCODE_DPAD_LEFT) {
-            if (currentFragment instanceof HomeFragment) {
-                HomeFragment homeFragment = (HomeFragment) currentFragment;
-                if (homeFragment.onKeyDown(keyCode, event)) {
-                    return true; // Fragment consumed it
-                }
-            }
             // Switch to previous tab if not at start
             if (currentPos > 0) {
                 switchFragment(currentPos - 1, true);
@@ -1257,11 +1245,6 @@ public class MainActivity extends AppCompatActivity {
         
         // D-pad center/ENTER: let current fragment handle it
         if (keyCode == KeyEvent.KEYCODE_DPAD_CENTER || keyCode == KeyEvent.KEYCODE_ENTER) {
-            if (currentFragment instanceof HomeFragment) {
-                if (((HomeFragment) currentFragment).onKeyDown(keyCode, event)) {
-                    return true;
-                }
-            }
         }
         
         return super.onKeyDown(keyCode, event);
@@ -1329,24 +1312,24 @@ public class MainActivity extends AppCompatActivity {
     /** Route a volume-shutter long press to the home fragment (start/stop recording). */
     private void triggerVolumeShutterLongPress() {
         Fragment current = getCurrentFragment();
-        if (current instanceof HomeFragment) {
-            ((HomeFragment) current).handleVolumeShutterLongPress();
+        if (current instanceof com.fadcam.ui.compose.CameraHomeFragment) {
+            ((com.fadcam.ui.compose.CameraHomeFragment) current).handleVolumeShutterLongPress();
         }
     }
 
     /** Route a volume-shutter click to the home fragment (capture FadShot photo). */
     private void triggerVolumeShutterClick() {
         Fragment current = getCurrentFragment();
-        if (current instanceof HomeFragment) {
-            ((HomeFragment) current).handleVolumeShutterClick();
+        if (current instanceof com.fadcam.ui.compose.CameraHomeFragment) {
+            ((com.fadcam.ui.compose.CameraHomeFragment) current).handleVolumeShutterClick();
         }
     }
 
     /** Route a volume-shutter double click to the home fragment (switch camera). */
     private void triggerVolumeShutterCameraSwitch() {
         Fragment current = getCurrentFragment();
-        if (current instanceof HomeFragment) {
-            ((HomeFragment) current).handleVolumeShutterCameraSwitch();
+        if (current instanceof com.fadcam.ui.compose.CameraHomeFragment) {
+            ((com.fadcam.ui.compose.CameraHomeFragment) current).handleVolumeShutterCameraSwitch();
         }
     }
 
@@ -1936,10 +1919,7 @@ public class MainActivity extends AppCompatActivity {
     private static final String HOME_FRAGMENT_TAG_FADREC = FRAGMENT_TAG_PREFIX + "0_fadrec";
 
     private String getHomeFragmentTagForCurrentMode() {
-        String currentMode = sharedPreferencesManager.getCurrentRecordingMode();
-        return Constants.MODE_FADREC.equals(currentMode)
-                ? HOME_FRAGMENT_TAG_FADREC
-                : HOME_FRAGMENT_TAG_FADCAM;
+        return HOME_FRAGMENT_TAG_FADCAM;
     }
 
     private String getFragmentTagForPosition(int position) {
@@ -2158,13 +2138,7 @@ public class MainActivity extends AppCompatActivity {
         Fragment newFragment;
         switch (position) {
             case 0:
-                // Home tab - check current mode
-                String currentMode = sharedPreferencesManager.getCurrentRecordingMode();
-                if (com.fadcam.Constants.MODE_FADREC.equals(currentMode)) {
-                    newFragment = com.fadcam.fadrec.ui.FadRecHomeFragment.newInstance();
-                } else {
-                    newFragment = new com.fadcam.ui.HomeFragment();
-                }
+                newFragment = new com.fadcam.ui.compose.CameraHomeFragment();
                 break;
             case 1:
                 newFragment = new RecordsFragment();
@@ -2173,7 +2147,7 @@ public class MainActivity extends AppCompatActivity {
                 newFragment = new com.fadcam.ui.compose.SettingsComposeFragment();
                 break;
             default:
-                newFragment = new com.fadcam.ui.HomeFragment();
+                newFragment = new com.fadcam.ui.compose.CameraHomeFragment();
         }
         
         return newFragment;

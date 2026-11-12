@@ -25,7 +25,6 @@ import androidx.core.app.NotificationCompat;
 import com.fadcam.Constants;
 import com.fadcam.R;
 import com.fadcam.SharedPreferencesManager;
-import com.fadcam.ui.HomeFragment;
 
 import java.lang.ref.WeakReference;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -41,14 +40,10 @@ public class TorchService extends Service {
     private HandlerThread handlerThread;
     private Handler backgroundHandler;
     private AtomicBoolean isTorchOn = new AtomicBoolean(false);
-    private static WeakReference<HomeFragment> homeFragmentRef;
     private String selectedTorchSource;
     private CameraManager.TorchCallback torchCallback;
 
     // Static method to set the home fragment
-    public static void setHomeFragment(HomeFragment fragment) {
-        homeFragmentRef = new WeakReference<>(fragment);
-    }
 
     // In TorchService.java
     private void toggleTorchInternal() {
@@ -344,13 +339,6 @@ public class TorchService extends Service {
     }
 
     private void updateUIAndBroadcastState(boolean state) {
-        // Update UI callback if available
-        if (homeFragmentRef != null && homeFragmentRef.get() != null) {
-            new Handler(Looper.getMainLooper()).post(() -> 
-                homeFragmentRef.get().updateTorchUI(state)
-            );
-        }
-
         // Broadcast state change
         Intent stateIntent = new Intent(Constants.BROADCAST_ON_TORCH_STATE_CHANGED);
         stateIntent.putExtra(Constants.INTENT_EXTRA_TORCH_STATE, state);
