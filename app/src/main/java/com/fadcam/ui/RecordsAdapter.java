@@ -1309,10 +1309,6 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 "drive_file_rename_outline"));
         items.add(OptionItem.withLigature("action_info", ctx.getString(R.string.video_menu_info), "info"));
         if (!isImage) {
-            items.add(OptionItem.withLigature("action_upload_youtube", ctx.getString(R.string.video_menu_upload_youtube),
-                    "play_circle"));
-            items.add(OptionItem.withLigature("action_upload_drive", ctx.getString(R.string.video_menu_upload_drive),
-                    "cloud_upload"));
             items.add(OptionItem.withLigature("action_open_with", ctx.getString(R.string.video_menu_open_with),
                     "open_in_new"));
         }
@@ -1347,12 +1343,6 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 case "action_delete":
                     if (actionListener != null)
                         actionListener.onDeleteVideo(videoItem);
-                    break;
-                case "action_upload_youtube":
-                    openVideoInYouTube(videoItem);
-                    break;
-                case "action_upload_drive":
-                    openVideoInGoogleDrive(videoItem);
                     break;
                 case "action_open_with":
                     openWithExternalPlayer(videoItem);
@@ -1493,10 +1483,6 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
                 ? new PopupMenu(context, holder.menuButtonContainer, 0, 0, popupMenuStyle)
                 : new PopupMenu(context, holder.menuButtonContainer);
         popup.getMenuInflater().inflate(R.menu.video_item_menu, popup.getMenu());
-        if (isImage) {
-            popup.getMenu().removeItem(R.id.action_upload_youtube);
-            popup.getMenu().removeItem(R.id.action_upload_drive);
-        }
 
         // Set text color for all menu items
         int colorMenuText;
@@ -1546,12 +1532,6 @@ public class RecordsAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder
             } else if (id == R.id.action_delete) {
                 if (actionListener != null)
                     actionListener.onDeleteVideo(videoItem);
-                return true;
-            } else if (id == R.id.action_upload_youtube) {
-                openVideoInYouTube(videoItem);
-                return true;
-            } else if (id == R.id.action_upload_drive) {
-                openVideoInGoogleDrive(videoItem);
                 return true;
             }
             return false;

@@ -41,11 +41,17 @@ private val JustCamDark = darkColorScheme(
 private fun ColorScheme.amoled(): ColorScheme = copy(
     background = Color.Black,
     surface = Color.Black,
+    surfaceVariant = Color(0xFF262626),
+    onSurface = Color(0xFFE6E6E6),
+    onBackground = Color(0xFFE6E6E6),
+    onSurfaceVariant = Color(0xFFB8B8B8),
+    outline = Color(0xFF8A8A8A),
+    outlineVariant = Color(0xFF3A3A3A),
     surfaceContainerLowest = Color.Black,
-    surfaceContainerLow = Color(0xFF0A0F0E),
-    surfaceContainer = Color(0xFF101514),
-    surfaceContainerHigh = Color(0xFF1A201F),
-    surfaceContainerHighest = Color(0xFF242A29),
+    surfaceContainerLow = Color(0xFF0A0A0A),
+    surfaceContainer = Color(0xFF121212),
+    surfaceContainerHigh = Color(0xFF1C1C1C),
+    surfaceContainerHighest = Color(0xFF262626),
 )
 
 /** JustCam Material 3 theme: Material You on Android 12+, teal fallback, optional true black. */
