@@ -30,8 +30,10 @@ fun AppearanceScreen(
     val names = stringArrayResource(R.array.languages_array)
     val canDynamic = Build.VERSION.SDK_INT >= Build.VERSION_CODES.S
 
-    SettingsPage(stringResource(R.string.setting_theme_title), onBack) {
-        section(stringResource(R.string.setting_theme_title)) {
+    val themeTitle = stringResource(R.string.setting_theme_title)
+    val langTitle = stringResource(R.string.setting_language_title)
+    SettingsPage(themeTitle, onBack) {
+        section(themeTitle) {
             item {
                 SwitchRow(
                     stringResource(R.string.jc_theme_dynamic),
@@ -52,7 +54,7 @@ fun AppearanceScreen(
                 }
             }
         }
-        section(stringResource(R.string.setting_language_title)) {
+        section(langTitle) {
             item {
                 val idx = LANGUAGE_CODES.indexOf(lang).coerceAtLeast(0)
                 ChoiceRow(
