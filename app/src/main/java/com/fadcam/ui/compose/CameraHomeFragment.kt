@@ -29,6 +29,8 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.navigationBarsPadding
@@ -53,6 +55,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.ComposeView
@@ -264,6 +267,7 @@ class CameraHomeFragment : Fragment() {
 
     /** Safety net: keep UI in sync with persisted service state even if a broadcast is missed. */
     private fun syncFromPrefs(now: Long) {
+        if ((camRecording || screenRecording) && startElapsed == 0L && camState != RecordingState.STARTING) startElapsed = now
         if (!dualActive) {
             val r = prefs.isRecordingInProgress
             if (r && camState == RecordingState.NONE) {
@@ -295,8 +299,16 @@ class CameraHomeFragment : Fragment() {
         }
         val ctx = requireContext()
         if (dualMode) {
-            ServiceStartPolicy.startRecordingAction(ctx,
-                Intent(ctx, DualCameraRecordingService::class.java).setAction(Constants.INTENT_ACTION_START_DUAL_RECORDING))
+            val go = {
+                ServiceStartPolicy.startRecordingAction(ctx,
+                    Intent(ctx, DualCameraRecordingService::class.java).setAction(Constants.INTENT_ACTION_START_DUAL_RECORDING))
+            }
+            if (previewOnly) {
+                // The preview holds a camera; release it before opening two cameras.
+                ctx.startService(Intent(ctx, RecordingService::class.java).setAction(Constants.INTENT_ACTION_STOP_PREVIEW_ONLY))
+                previewOnly = false
+                view?.postDelayed(go, 900) ?: go()
+            } else go()
             return
         }
         camState = RecordingState.STARTING
@@ -397,6 +409,7 @@ class CameraHomeFragment : Fragment() {
     }
 
     private fun startScreen() {
+        if (prefs.screenRecordingState != "NONE") return
         val src = prefs.screenRecordingAudioSource
         if (src == Constants.AUDIO_SOURCE_MIC && !hasPerm(Manifest.permission.RECORD_AUDIO)) {
             micPermission.launch(Manifest.permission.RECORD_AUDIO)
@@ -442,17 +455,10 @@ class CameraHomeFragment : Fragment() {
             (now - startElapsed - pausedAccum - p).coerceAtLeast(0)
         } else 0L
 
-        Box(Modifier.fillMaxSize().background(Color.Black)) {
-            AnimatedContent(targetState = mode, label = "mode") { m ->
-                when (m) {
-                    0 -> Viewfinder()
-                    1 -> ModePlaceholder(R.drawable.screen_recorder, R.string.jc_fadrec_hint)
-                    else -> ModePlaceholder(R.drawable.ic_mic, R.string.jc_fadmic_soon)
-                }
-            }
+        Column(Modifier.fillMaxSize().background(Color.Black).statusBarsPadding().navigationBarsPadding()) {
             // Top bar
             Row(
-                Modifier.fillMaxWidth().statusBarsPadding().padding(horizontal = 8.dp, vertical = 4.dp),
+                Modifier.fillMaxWidth().padding(horizontal = 8.dp, vertical = 4.dp),
                 verticalAlignment = Alignment.CenterVertically,
             ) {
                 IconButton(onClick = { openSidebar() }) { Icon(Icons.Filled.Menu, null, tint = Color.White) }
@@ -469,9 +475,18 @@ class CameraHomeFragment : Fragment() {
                 }
                 IconButton(onClick = { openSettings() }) { Icon(Icons.Filled.Settings, null, tint = Color.White) }
             }
+            Box(Modifier.weight(1f).fillMaxWidth()) {
+                AnimatedContent(targetState = mode, label = "mode") { m ->
+                    when (m) {
+                        0 -> Viewfinder()
+                        1 -> ModePlaceholder(R.drawable.screen_recorder, R.string.jc_fadrec_hint)
+                        else -> ModePlaceholder(R.drawable.ic_mic, R.string.jc_fadmic_soon)
+                    }
+                }
+            }
             // Bottom controls
             Column(
-                Modifier.align(Alignment.BottomCenter).fillMaxWidth().navigationBarsPadding().padding(bottom = 20.dp),
+                Modifier.fillMaxWidth().padding(bottom = 16.dp, top = 8.dp),
                 horizontalAlignment = Alignment.CenterHorizontally,
             ) {
                 ModeTabs(enabled = !active)
@@ -504,12 +519,14 @@ class CameraHomeFragment : Fragment() {
                         if (mode == 0) RoundButton(R.drawable.cam_switch, false) { switchCamera() }
                     }
                 }
-                if (mode == 0 && !camRecording) {
-                    Spacer(Modifier.size(14.dp))
-                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
-                        Chip(stringResource(R.string.jc_preview), previewOnly) { togglePreviewOnly() }
+                Spacer(Modifier.size(14.dp))
+                run {
+                    val showChips = mode == 0 && !camRecording
+                    Row(Modifier.alpha(if (showChips) 1f else 0f), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        Chip(stringResource(R.string.jc_preview), previewOnly) { if (!dualMode) togglePreviewOnly() }
                         Chip(stringResource(R.string.jc_dual), dualMode) {
                             dualMode = !dualMode; prefs.setDualCameraModeEnabled(dualMode)
+                            if (dualMode && previewOnly) togglePreviewOnly()
                         }
                         Chip(stringResource(R.string.jc_mute), muted) { toggleMute() }
                     }
@@ -520,7 +537,8 @@ class CameraHomeFragment : Fragment() {
 
     @Composable
     private fun Viewfinder() {
-        Box(Modifier.fillMaxSize().statusBarsPadding().navigationBarsPadding().padding(top = 60.dp, bottom = 190.dp, start = 12.dp, end = 12.dp).clip(RoundedCornerShape(28.dp)).background(Color(0xFF101010))) {
+        Box(Modifier.fillMaxSize().padding(12.dp), contentAlignment = Alignment.Center) {
+          Box(Modifier.fillMaxHeight().aspectRatio(9f / 16f, matchHeightConstraintsFirst = true).clip(RoundedCornerShape(28.dp)).background(Color(0xFF101010))) {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = { ctx ->
@@ -542,8 +560,9 @@ class CameraHomeFragment : Fragment() {
                 },
             )
             if (!camRecording && !previewOnly) {
-                Text(stringResource(R.string.jc_tap_preview), color = Color(0x99FFFFFF), modifier = Modifier.align(Alignment.Center).clickable { togglePreviewOnly() }.padding(16.dp))
+                Text(stringResource(if (dualMode) R.string.jc_dual_no_preview else R.string.jc_tap_preview), color = Color(0x99FFFFFF), modifier = Modifier.align(Alignment.Center).clickable { if (!dualMode) togglePreviewOnly() }.padding(16.dp))
             }
+          }
         }
     }
 

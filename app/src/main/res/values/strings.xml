@@ -3134,4 +3134,5 @@ For the smoothest playback experience, you can use an external player like VLC. 
     <string name="jc_dual">Dual</string>
     <string name="jc_mute">Mute</string>
     <string name="jc_tap_preview">Tap to show preview</string>
+    <string name="jc_dual_no_preview">Dual mode records without preview</string>
 </resources>
