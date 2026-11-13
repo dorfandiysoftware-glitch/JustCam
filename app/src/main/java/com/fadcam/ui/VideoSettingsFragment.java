@@ -66,24 +66,6 @@ public class VideoSettingsFragment extends Fragment {
 
     private SharedPreferencesManager prefs;
 
-    private TextView valueCamera;
-    private TextView valueLens;
-    private TextView valueResolution;
-    private TextView valueFrameRate;
-    private TextView valueCodec;
-    private TextView valueBitrate;
-    private TextView valueOrientation;
-    private TextView valueLocationEmbed;
-    // Newly migrated rows
-    private TextView valueZoomRatio;
-    private TextView valueMaximumRecordingDuration;
-    private TextView valueVideoSplitEnabled;
-    private TextView valueVideoSplitSize; // removed from layout (merged)
-    private TextView valueBitrateHelper; // now null since helper removed
-    // Optional helper text not in current layout
-
-    // Video stabilization row
-    private TextView valueVideoStabilization;
     private boolean videoStabilizationSupported = true;
 
     // Cached dynamic data
@@ -98,49 +80,123 @@ public class VideoSettingsFragment extends Fragment {
     private static final String PREF_BITRATE_MODE_CUSTOM = "bitrate_mode_custom"; // false default
     private static final String PREF_BITRATE_CUSTOM_VALUE = "bitrate_custom_value"; // stored in kbps
 
+    /** One selectable value for the Compose screen. */
+    public static final class Option {
+        public final String id;
+        public final String label;
+        public final boolean both;
+        Option(String id, String label, boolean both) { this.id = id; this.label = label; this.both = both; }
+    }
+
+    private Runnable onDataChanged = () -> {};
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_settings_video, container, false);
+        prefs = SharedPreferencesManager.getInstance(requireContext());
+        videoStabilizationSupported = isVideoStabilizationHardwareSupported();
+        detectAvailableBackCameras();
+        cachedCodecs = getCompatiblesVideoCodecs();
+        androidx.compose.ui.platform.ComposeView v = new androidx.compose.ui.platform.ComposeView(requireContext());
+        v.setViewCompositionStrategy(
+                androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed.INSTANCE);
+        com.fadcam.ui.compose.VideoScreenKt.setVideoContent(v, this, prefs,
+                r -> { onDataChanged = r; return kotlin.Unit.INSTANCE; },
+                () -> { OverlayNavUtil.dismiss(requireActivity()); return kotlin.Unit.INSTANCE; },
+                () -> { OverlayNavUtil.show(requireActivity(), new DualCameraSettingsFragment(),
+                        "DualCameraSettingsFragment"); return kotlin.Unit.INSTANCE; });
+        return v;
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        com.fadcam.Utils.attachPressScaleToClickableRows(view);
-        super.onViewCreated(view, savedInstanceState);
-        prefs = SharedPreferencesManager.getInstance(requireContext());
-        bindViews(view);
-        bindRowHandlers(view);
-        // Cache stabilization hardware support before the first value refresh.
+    // ---------------- API used by the Compose screen ----------------
+
+    public boolean isStabilizationSupported() { return videoStabilizationSupported; }
+
+    public boolean isDualSupported() { return new DualCameraCapability(requireContext()).isSupported(); }
+
+    public List<Option> lensOptions() {
+        if (availableBackCameras.isEmpty()) detectAvailableBackCameras();
+        List<Option> out = new ArrayList<>();
+        for (CameraIdInfo i : availableBackCameras) out.add(new Option(i.id, i.displayName, false));
+        return out;
+    }
+
+    public List<Option> resolutionOptions() {
+        List<Option> out = new ArrayList<>();
+        try {
+            for (ResolutionInfo ri : getCompatiblesVideoResolutionsWithFlags(prefs.getCameraSelection())) {
+                out.add(new Option(ri.size.getWidth() + "x" + ri.size.getHeight(),
+                        buildResolutionLabel(ri.size), ri.supportedByBothCameras));
+            }
+        } catch (Exception e) {
+            FLog.w(TAG, "resolutionOptions failed", e);
+        }
+        return out;
+    }
+
+    public String resolutionLabel(Size size) { return buildResolutionLabel(size); }
+
+    public List<Integer> frameRates() {
+        try { return getHardwareSupportedFrameRates(prefs.getCameraSelection()); }
+        catch (Exception e) { return new ArrayList<>(); }
+    }
+
+    public List<String> codecs() {
+        List<String> out = new ArrayList<>();
+        for (VideoCodec c : getCompatiblesVideoCodecs()) out.add(c.toString());
+        return out;
+    }
+
+    public List<Float> zoomOptions() { return buildZoomRatioOptions(prefs.getCameraSelection()); }
+
+    public boolean bitrateCustom() { return getBitrateMode(); }
+    public int bitrateKbps() { return getCurrentBitrate(); }
+    public int defaultBitrateKbps() { return getDefaultBitrate(); }
+
+    public void setBitrate(boolean custom, int kbps) {
+        setBitrateMode(custom);
+        if (custom) setBitrateCustomValue(kbps);
+        else setBitrateCustomValue(getDefaultBitrate());
+    }
+
+    public void onCameraSelected(String sel) {
+        CameraType t = CameraType.valueOf(sel);
+        prefs.setDualCameraModeEnabled(t == CameraType.DUAL_PIP);
+        prefs.sharedPreferences.edit().putString(Constants.PREF_CAMERA_SELECTION, sel).apply();
+        cachedResolutionsFront.clear();
+        cachedResolutionsBack.clear();
         videoStabilizationSupported = isVideoStabilizationHardwareSupported();
-        FLog.i("FadCamEIS", "UI: stabilization supported on selected camera = " + videoStabilizationSupported);
-        // Detect back cameras early
-        detectAvailableBackCameras();
-        // Preload codecs
-        cachedCodecs = getCompatiblesVideoCodecs();
-        refreshAllValues();
-        View back = view.findViewById(R.id.back_button);
-        if (back != null) {
-            back.setOnClickListener(v -> OverlayNavUtil.dismiss(requireActivity()));
+    }
+
+    public void onLensSelected(String id) {
+        prefs.setSelectedBackCameraId(id);
+        cachedResolutionsBack.clear();
+        videoStabilizationSupported = isVideoStabilizationHardwareSupported();
+    }
+
+    public void setStabilization(boolean state) {
+        prefs.setVideoStabilizationEnabled(state);
+        try {
+            Intent i = new Intent(Constants.INTENT_ACTION_SET_VIDEO_STABILIZATION);
+            i.setClass(requireContext(), RecordingService.class);
+            i.putExtra(Constants.EXTRA_VIDEO_STABILIZATION_ENABLED, state);
+            requireContext().startService(i);
+        } catch (Exception e) {
+            FLog.w("FadCamEIS", "UI: failed to dispatch stabilization change: " + e.getMessage());
         }
     }
 
-    private void bindViews(View root) {
-        valueCamera = root.findViewById(R.id.value_camera_type);
-        valueLens = root.findViewById(R.id.value_lens);
-        valueResolution = root.findViewById(R.id.value_resolution);
-        valueFrameRate = root.findViewById(R.id.value_framerate);
-        valueCodec = root.findViewById(R.id.value_codec);
-        valueBitrate = root.findViewById(R.id.value_bitrate);
-        valueOrientation = root.findViewById(R.id.value_orientation);
-        valueLocationEmbed = root.findViewById(R.id.value_location_embed);
-        valueZoomRatio = root.findViewById(R.id.value_zoom_ratio);
-        valueMaximumRecordingDuration = root.findViewById(R.id.value_maximum_recording_duration);
-        valueVideoSplitEnabled = root.findViewById(R.id.value_video_split_enabled);
-        valueVideoSplitSize = null; // merged design
-        valueBitrateHelper = null; // helper removed from layout
-        valueVideoStabilization = root.findViewById(R.id.value_video_stabilization);
+    /** Turns location embedding on/off; asks for the permission first when enabling. */
+    public void setLocationEmbedding(boolean enabled) {
+        if (enabled) {
+            ensureLocationPermissionThen(() -> {
+                prefs.sharedPreferences.edit().putBoolean(Constants.PREF_EMBED_LOCATION_DATA, true).apply();
+                onDataChanged.run();
+            });
+        } else {
+            prefs.sharedPreferences.edit().putBoolean(Constants.PREF_EMBED_LOCATION_DATA, false).apply();
+        }
     }
 
     /**
@@ -148,53 +204,7 @@ public class VideoSettingsFragment extends Fragment {
      * the explanation footer. On devices without EIS/OIS the switch is shown but
      * disabled with a clear "not supported" note — we never hide capability info.
      */
-    private void showVideoStabilizationBottomSheet() {
-        boolean supported = videoStabilizationSupported;
-        boolean enabled = prefs.isVideoStabilizationEnabled();
-        final String resultKey = "picker_result_video_stabilization";
 
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (k, b) -> {
-            if (b.containsKey(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SWITCH_STATE)) {
-                boolean state = b.getBoolean(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SWITCH_STATE);
-                prefs.setVideoStabilizationEnabled(state);
-                // If the recording service is running, apply immediately.
-                try {
-                    Intent i = new Intent(Constants.INTENT_ACTION_SET_VIDEO_STABILIZATION);
-                    i.setClass(requireContext(), RecordingService.class);
-                    i.putExtra(Constants.EXTRA_VIDEO_STABILIZATION_ENABLED, state);
-                    requireContext().startService(i);
-                } catch (Exception e) {
-                    FLog.w("FadCamEIS", "UI: failed to dispatch stabilization change: " + e.getMessage());
-                }
-                refreshAllValues();
-            }
-        });
-
-        String helper = getString(R.string.video_stabilization_footer);
-        if (!supported) {
-            helper += "\n\n" + getString(R.string.setting_not_supported);
-        }
-        java.util.ArrayList<com.fadcam.ui.picker.OptionItem> items = new java.util.ArrayList<>();
-        com.fadcam.ui.picker.PickerBottomSheetFragment sheet = com.fadcam.ui.picker.PickerBottomSheetFragment
-                .newInstanceWithSwitch(
-                        getString(R.string.setting_video_stabilization_title),
-                        items,
-                        null,
-                        resultKey,
-                        helper,
-                        getString(R.string.setting_video_stabilization_title),
-                        enabled && supported);
-        if (!supported && sheet.getArguments() != null) {
-            // Show the switch but keep it disabled (unsupported hardware).
-            sheet.getArguments().putBoolean(
-                    com.fadcam.ui.picker.PickerBottomSheetFragment.ARG_SWITCH_ENABLED, false);
-            // Clear warning banner so users see the limitation immediately.
-            sheet.getArguments().putString(
-                    com.fadcam.ui.picker.PickerBottomSheetFragment.ARG_BANNER_TEXT,
-                    getString(R.string.setting_not_supported));
-        }
-        sheet.show(getParentFragmentManager(), "video_stabilization_picker");
-    }
 
     /**
      * Checks whether the currently selected camera advertises EIS (video
@@ -255,160 +265,9 @@ public class VideoSettingsFragment extends Fragment {
         }
     }
 
-    private void bindRowHandlers(View root) {
-        // Pill-style tap animation for every tappable arrow row.
-        // Wide full-width rows: smaller scale (1.03) so the growth stays subtle.
-        int[] rowIds = {
-            R.id.row_camera_type, R.id.row_video_stabilization, R.id.row_lens,
-            R.id.row_resolution, R.id.row_framerate, R.id.row_codec, R.id.row_bitrate,
-            R.id.row_orientation, R.id.row_zoom_ratio, R.id.row_video_splitting,
-            R.id.row_location_embed, R.id.row_dual_camera_settings
-        };
-        root.findViewById(R.id.row_camera_type).setOnClickListener(v -> showCameraBottomSheet());
-        root.findViewById(R.id.row_video_stabilization).setOnClickListener(v -> showVideoStabilizationBottomSheet());
-        root.findViewById(R.id.row_lens).setOnClickListener(v -> showLensBottomSheet());
-        root.findViewById(R.id.row_resolution).setOnClickListener(v -> showResolutionBottomSheet());
-        root.findViewById(R.id.row_framerate).setOnClickListener(v -> showFrameRateBottomSheet());
-        root.findViewById(R.id.row_codec).setOnClickListener(v -> showCodecBottomSheet());
-        root.findViewById(R.id.row_bitrate).setOnClickListener(v -> showBitrateBottomSheet());
-        root.findViewById(R.id.row_orientation).setOnClickListener(v -> showOrientationBottomSheet());
-        View zr = root.findViewById(R.id.row_zoom_ratio);
-        if (zr != null)
-            zr.setOnClickListener(v -> showZoomRatioBottomSheet());
-        View durationRow = root.findViewById(R.id.row_maximum_recording_duration);
-        if (durationRow != null)
-            durationRow.setOnClickListener(v -> showMaximumRecordingDurationBottomSheet());
-        View splitRow = root.findViewById(R.id.row_video_splitting);
-        if (splitRow != null)
-            splitRow.setOnClickListener(v -> showVideoSplittingBottomSheet());
-        View locRow = root.findViewById(R.id.row_location_embed);
-        if (locRow != null)
-            locRow.setOnClickListener(v -> showLocationEmbedSheet());
-        // Dual Camera Settings row — opens the full settings fragment
-        View dualRow = root.findViewById(R.id.row_dual_camera_settings);
-        if (dualRow != null) {
-            dualRow.setOnClickListener(v ->
-                    OverlayNavUtil.show(requireActivity(),
-                            new DualCameraSettingsFragment(),
-                            "DualCameraSettingsFragment"));
-        }
-    }
 
-    private void refreshAllValues() {
-        CameraType cam = prefs.getCameraSelection();
-        if (cam == CameraType.DUAL_PIP) {
-            valueCamera.setText(getString(R.string.button_settings_cam_dual));
-        } else {
-            valueCamera.setText(cam == CameraType.FRONT ? getString(R.string.button_settings_cam_front)
-                    : getString(R.string.button_settings_cam_back));
-        }
 
-        // Video stabilization row value
-        if (valueVideoStabilization != null) {
-            valueVideoStabilization.setText(videoStabilizationSupported
-                    ? (prefs.isVideoStabilizationEnabled()
-                            ? getString(R.string.setting_enabled_msg)
-                            : getString(R.string.setting_disabled_msg))
-                    : getString(R.string.setting_not_supported));
-        }
 
-        // Show/hide Dual Camera Settings row and its divider
-        View dualRow = getView() != null ? getView().findViewById(R.id.row_dual_camera_settings) : null;
-        View dualDivider = getView() != null ? getView().findViewById(R.id.divider_dual_camera_settings) : null;
-        boolean isDual = cam == CameraType.DUAL_PIP;
-        if (dualRow != null) dualRow.setVisibility(isDual ? View.VISIBLE : View.GONE);
-        if (dualDivider != null) dualDivider.setVisibility(isDual ? View.VISIBLE : View.GONE);
-
-        // Lens
-        if (cam == CameraType.BACK) {
-            if (availableBackCameras.isEmpty()) {
-                detectAvailableBackCameras();
-            }
-            String savedId = prefs.getSelectedBackCameraId();
-            String display = null;
-            if (savedId != null) {
-                for (CameraIdInfo info : availableBackCameras) {
-                    if (info.id.equals(savedId)) {
-                        display = info.displayName;
-                        break;
-                    }
-                }
-            }
-            valueLens.setText(display != null ? display : getString(R.string.setting_back_lens_title));
-        } else {
-            valueLens.setText("-");
-        }
-
-        // Resolution (use friendly label like in picker)
-        Size res = prefs.getCameraResolution();
-        valueResolution.setText(buildResolutionLabel(res));
-
-        // Frame rate (stored per camera)
-        int fps = prefs.getSpecificVideoFrameRate(cam);
-        valueFrameRate.setText(fps + " fps");
-
-        // Codec
-        valueCodec.setText(prefs.getVideoCodec().toString());
-
-        // Bitrate (custom or default)
-        int bitrate = getCurrentBitrate();
-        boolean isCustom = getBitrateMode();
-        valueBitrate.setText(
-                String.format(Locale.getDefault(), "%d Mbps %s", bitrate / 1000, isCustom ? "(Custom)" : "(Auto)"));
-        // Bitrate helper removed from persistent UI
-
-        // Zoom Ratio
-        if (valueZoomRatio != null) {
-            float zoom = prefs.getSpecificZoomRatio(cam);
-            valueZoomRatio.setText(String.format(Locale.getDefault(), "%.1fx", zoom));
-            View zrRow = requireView().findViewById(R.id.row_zoom_ratio);
-            if (zrRow != null)
-                zrRow.setVisibility(View.VISIBLE);
-        }
-
-        if (valueMaximumRecordingDuration != null) {
-            valueMaximumRecordingDuration.setText(getMaximumRecordingDurationLabel());
-        }
-
-        // Video Splitting
-        if (valueVideoSplitEnabled != null) {
-            boolean enabled = prefs.isVideoSplittingEnabled();
-            if (enabled) {
-                int mb = prefs.getVideoSplitSizeMb();
-                String label;
-                if (mb == 500)
-                    label = getString(R.string.video_split_enabled_format, getString(R.string.video_split_size_500mb));
-                else if (mb == 1024)
-                    label = getString(R.string.video_split_enabled_format, getString(R.string.video_split_size_1gb));
-                else if (mb == 2048)
-                    label = getString(R.string.video_split_enabled_format, getString(R.string.video_split_size_2gb));
-                else if (mb == 4096)
-                    label = getString(R.string.video_split_enabled_format, getString(R.string.video_split_size_4gb));
-                else
-                    label = getString(R.string.video_split_enabled_format, getString(R.string.video_split_size_custom_format, mb));
-                valueVideoSplitEnabled.setText(label);
-            } else {
-                valueVideoSplitEnabled.setText(getString(R.string.setting_disabled));
-            }
-        }
-
-        // Orientation
-        String orient = prefs.getVideoOrientation();
-        valueOrientation.setText(SharedPreferencesManager.ORIENTATION_LANDSCAPE.equals(orient)
-                ? getString(R.string.video_orientation_landscape)
-                : getString(R.string.video_orientation_portrait));
-        if (valueLocationEmbed != null) {
-            valueLocationEmbed.setText(
-                    prefs.isLocationEmbeddingEnabled() ? getString(R.string.video_setting_location_embed_enabled)
-                            : getString(R.string.video_setting_location_embed_disabled));
-        }
-
-        // Lens row visibility — hide for Dual PiP and Front
-        View lensRow = requireView().findViewById(R.id.row_lens);
-        if (lensRow != null) {
-            lensRow.setVisibility(cam == CameraType.BACK && availableBackCameras.size() > 0 ? View.VISIBLE : View.GONE);
-        }
-    }
 
     private Runnable pendingLocationGrantedAction;
 
@@ -421,31 +280,7 @@ public class VideoSettingsFragment extends Fragment {
                         if (granted && action != null) action.run();
                     });
 
-    private void showLocationEmbedSheet() {
-        final String rk = "picker_result_location_embed";
-        getParentFragmentManager().setFragmentResultListener(rk, this, (k, b) -> {
-            if (b.containsKey(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SWITCH_STATE)) {
-                boolean enabled = b.getBoolean(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SWITCH_STATE);
-                if (enabled) {
-                    ensureLocationPermissionThen(() -> {
-                        prefs.sharedPreferences.edit().putBoolean(Constants.PREF_EMBED_LOCATION_DATA, true).apply();
-                        refreshAllValues();
-                    });
-                } else {
-                    prefs.sharedPreferences.edit().putBoolean(Constants.PREF_EMBED_LOCATION_DATA, false).apply();
-                    refreshAllValues();
-                }
-            }
-        });
-        ArrayList<com.fadcam.ui.picker.OptionItem> items = new ArrayList<>(); // no options, switch only
-        String helper = getString(R.string.helper_location_embed) + "\n"
-                + getString(R.string.location_permission_message);
-        com.fadcam.ui.picker.PickerBottomSheetFragment sheet = com.fadcam.ui.picker.PickerBottomSheetFragment
-                .newInstanceWithSwitch(
-                        getString(R.string.video_setting_location_embed_title), items, null, rk, helper,
-                        getString(R.string.video_setting_location_embed_title), prefs.isLocationEmbeddingEnabled());
-        sheet.show(getParentFragmentManager(), "location_embed_sheet");
-    }
+
 
     private void ensureLocationPermissionThen(Runnable onGranted) {
         if (androidx.core.content.ContextCompat.checkSelfPermission(requireContext(),
@@ -458,281 +293,24 @@ public class VideoSettingsFragment extends Fragment {
     }
     // -------------- Additional methods for location embedding end -----------
 
-    private void showCameraBottomSheet() {
-        CameraType current = prefs.getCameraSelection();
-        java.util.ArrayList<com.fadcam.ui.picker.OptionItem> items = new java.util.ArrayList<>();
-        items.add(new com.fadcam.ui.picker.OptionItem(CameraType.FRONT.toString(),
-                getString(R.string.button_settings_cam_front)));
-        items.add(new com.fadcam.ui.picker.OptionItem(CameraType.BACK.toString(),
-                getString(R.string.button_settings_cam_back)));
 
-        // Add Dual Camera (PiP) option if device supports it
-        DualCameraCapability dualCap = new DualCameraCapability(requireContext());
-        if (dualCap.isSupported()) {
-            items.add(new com.fadcam.ui.picker.OptionItem(CameraType.DUAL_PIP.toString(),
-                    getString(R.string.button_settings_cam_dual)));
-        }
 
-        final String resultKey = "picker_result_camera";
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (k, b) -> {
-            String sel = b.getString(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SELECTED_ID);
-            if (sel != null) {
-                CameraType selectedType = CameraType.valueOf(sel);
-                boolean changed = !sel.equals(current.toString());
 
-                if (changed) {
-                    // Sync dual camera preference with selection
-                    prefs.setDualCameraModeEnabled(selectedType == CameraType.DUAL_PIP);
 
-                    prefs.sharedPreferences.edit().putString(Constants.PREF_CAMERA_SELECTION, sel).apply();
 
-                    // Clear cached resolution lists when camera type changes to force refresh
-                    cachedResolutionsFront.clear();
-                    cachedResolutionsBack.clear();
 
-                    refreshAllValues();
-                }
 
-                // Always show PiP settings screen when Dual is selected (even on re-selection)
-                if (selectedType == CameraType.DUAL_PIP) {
-                    OverlayNavUtil.show(requireActivity(),
-                            new DualCameraSettingsFragment(),
-                            "DualCameraSettingsFragment");
-                }
-            }
-        });
-        String helper = getString(R.string.note_cam_sele);
-        // Append dual camera unsupported note if device doesn't support it
-        boolean dualCamUnsupported = !dualCap.isSupported();
-        if (dualCamUnsupported) {
-            helper += "\n\n" + getString(R.string.note_cam_dual_unsupported);
-        }
-        com.fadcam.ui.picker.PickerBottomSheetFragment sheet = com.fadcam.ui.picker.PickerBottomSheetFragment
-                .newInstance(
-                        getString(R.string.setting_cam_title), items, current.toString(), resultKey, helper);
-        if (dualCamUnsupported && sheet.getArguments() != null) {
-            // Clear warning banner so users see immediately that dual camera is unavailable.
-            sheet.getArguments().putString(
-                    com.fadcam.ui.picker.PickerBottomSheetFragment.ARG_BANNER_TEXT,
-                    getString(R.string.dual_cam_banner_unsupported));
-        }
-        sheet.show(getParentFragmentManager(), "camera_picker");
-    }
 
-    private void showLensBottomSheet() {
-        CameraType cam = prefs.getCameraSelection();
-        if (cam == CameraType.FRONT || cam.isDual()) {
-            return;
-        }
-        if (availableBackCameras.isEmpty())
-            detectAvailableBackCameras();
-        String saved = prefs.getSelectedBackCameraId();
-        java.util.ArrayList<com.fadcam.ui.picker.OptionItem> items = new java.util.ArrayList<>();
-        for (CameraIdInfo info : availableBackCameras) {
-            items.add(new com.fadcam.ui.picker.OptionItem(info.id, info.displayName));
-        }
-        final String resultKey = "picker_result_lens";
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (k, b) -> {
-            String sel = b.getString(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SELECTED_ID);
-            if (sel != null && !sel.equals(saved)) {
-                prefs.setSelectedBackCameraId(sel);
-                // Clear back camera cache when lens changes as different lenses may support different resolutions
-                cachedResolutionsBack.clear();
-                refreshAllValues();
-            }
-        });
-        // Create dynamic helper text based on detected cameras
-        String helper = createLensHelperText();
-        com.fadcam.ui.picker.PickerBottomSheetFragment sheet = com.fadcam.ui.picker.PickerBottomSheetFragment
-                .newInstance(
-                        getString(R.string.setting_back_lens_title), items, saved, resultKey, helper);
-        sheet.show(getParentFragmentManager(), "lens_picker");
-    }
 
-    private void showResolutionBottomSheet() {
-        // method(showResolutionBottomSheet)-----------
-        CameraType cam = prefs.getCameraSelection();
-        java.util.List<ResolutionInfo> resolutions = getCompatiblesVideoResolutionsWithFlags(cam);
-        Size current = prefs.getCameraResolution();
-        String currentId = current.getWidth() + "x" + current.getHeight();
-        java.util.ArrayList<com.fadcam.ui.picker.OptionItem> items = new java.util.ArrayList<>();
 
-        for (ResolutionInfo ri : resolutions) {
-            String id = ri.size.getWidth() + "x" + ri.size.getHeight();
-            String title = buildResolutionLabel(ri.size);
-            if (ri.supportedByBothCameras) {
-                items.add(new com.fadcam.ui.picker.OptionItem(
-                        id, title,
-                        getString(R.string.resolution_subtitle_both),
-                        null, null, null, null, null, null,
-                        getString(R.string.resolution_badge_both),
-                        com.fadcam.R.drawable.badge_background_green,
-                        false));
-            } else {
-                items.add(new com.fadcam.ui.picker.OptionItem(
-                        id, title,
-                        getString(R.string.resolution_subtitle_current),
-                        null, null, null, null, null, null,
-                        getString(R.string.resolution_badge_current),
-                        com.fadcam.R.drawable.badge_background_blue,
-                        false));
-            }
-        }
-        final String resultKey = "picker_result_resolution";
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (key, bundle) -> {
-            String sel = bundle.getString(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SELECTED_ID);
-            if (sel != null && !sel.equals(currentId)) {
-                try {
-                    String[] parts = sel.split("x");
-                    int w = Integer.parseInt(parts[0]);
-                    int h = Integer.parseInt(parts[1]);
-                    if (w != current.getWidth() || h != current.getHeight()) {
-                        prefs.sharedPreferences.edit()
-                                .putInt(Constants.PREF_VIDEO_RESOLUTION_WIDTH, w)
-                                .putInt(Constants.PREF_VIDEO_RESOLUTION_HEIGHT, h)
-                                .apply();
-                        onResolutionOrFramerateChanged();
-                    }
-                } catch (Exception ignored) {
-                }
-                refreshAllValues();
-            }
-        });
-        String helper = getString(R.string.resolution_helper_all);
-        com.fadcam.ui.picker.PickerBottomSheetFragment sheet = com.fadcam.ui.picker.PickerBottomSheetFragment
-                .newInstance(
-                        getString(R.string.setting_quailty_title), items, currentId, resultKey, helper);
-        sheet.show(getParentFragmentManager(), "resolution_picker");
-        // method(showResolutionBottomSheet)-----------
-    }
 
-    private void showFrameRateBottomSheet() {
-        CameraType cam = prefs.getCameraSelection();
-        java.util.List<Integer> rates = getHardwareSupportedFrameRates(cam);
-        int current = prefs.getSpecificVideoFrameRate(cam);
-        java.util.ArrayList<com.fadcam.ui.picker.OptionItem> items = new java.util.ArrayList<>();
-        String currentId = String.valueOf(current);
-        for (Integer r : rates) {
-            items.add(new com.fadcam.ui.picker.OptionItem(String.valueOf(r), r + " fps"));
-        }
-        final String resultKey = "picker_result_framerate";
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (key, bundle) -> {
-            String sel = bundle.getString(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SELECTED_ID);
-            if (sel != null && !sel.equals(currentId)) {
-                try {
-                    int fps = Integer.parseInt(sel);
-                    if (fps != current) {
-                        prefs.setSpecificVideoFrameRate(cam, fps);
-                        onResolutionOrFramerateChanged();
-                    }
-                } catch (Exception ignored) {
-                }
-                refreshAllValues();
-            }
-        });
-        String helper = getString(R.string.note_framerate, Constants.DEFAULT_VIDEO_FRAME_RATE);
-        com.fadcam.ui.picker.PickerBottomSheetFragment sheet = com.fadcam.ui.picker.PickerBottomSheetFragment
-                .newInstance(
-                        getString(R.string.setting_framerate_title), items, currentId, resultKey, helper);
-        sheet.show(getParentFragmentManager(), "framerate_picker");
-    }
 
-    private void showCodecBottomSheet() {
-        VideoCodec saved = prefs.getVideoCodec();
-        java.util.List<VideoCodec> codes = getCompatiblesVideoCodecs();
-        java.util.ArrayList<com.fadcam.ui.picker.OptionItem> items = new java.util.ArrayList<>();
-        String currentId = saved.toString();
-        for (VideoCodec c : codes) {
-            items.add(new com.fadcam.ui.picker.OptionItem(c.toString(), c.toString()));
-        }
-        final String resultKey = "picker_result_codec";
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (key, bundle) -> {
-            String sel = bundle.getString(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SELECTED_ID);
-            if (sel != null && !sel.equals(currentId)) {
-                prefs.sharedPreferences.edit().putString(Constants.PREF_VIDEO_CODEC, sel).apply();
-                refreshAllValues();
-            }
-        });
-        String helper = getString(R.string.note_codec, saved.toString());
-        com.fadcam.ui.picker.PickerBottomSheetFragment sheet = com.fadcam.ui.picker.PickerBottomSheetFragment
-                .newInstance(
-                        getString(R.string.setting_codec_title), items, currentId, resultKey, helper);
-        sheet.show(getParentFragmentManager(), "codec_picker");
-    }
 
-    private void showBitrateBottomSheet() {
-        boolean custom = getBitrateMode();
-        int currentValueMbps = getBitrateCustomValue() / 1000;
-        java.util.ArrayList<com.fadcam.ui.picker.OptionItem> items = new java.util.ArrayList<>();
-        items.add(new com.fadcam.ui.picker.OptionItem("auto", "Auto"));
-        items.add(new com.fadcam.ui.picker.OptionItem("custom", "Custom (" + currentValueMbps + " Mbps)"));
-        final String resultKey = "picker_result_bitrate_mode";
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (k, b) -> {
-            String sel = b.getString(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SELECTED_ID);
-            if (sel == null)
-                return;
-            if ("auto".equals(sel)) {
-                setBitrateMode(false);
-                setBitrateCustomValue(getDefaultBitrate());
-                onResolutionOrFramerateChanged();
-                refreshAllValues();
-            } else if ("custom".equals(sel)) {
-                showBitrateCustomInput();
-            }
-        });
-        String helper = getString(R.string.bitrate_explanation_text);
-        com.fadcam.ui.picker.PickerBottomSheetFragment sheet = com.fadcam.ui.picker.PickerBottomSheetFragment
-                .newInstance(
-                        getString(R.string.setting_video_bitrate_title), items, custom ? "custom" : "auto", resultKey,
-                        helper);
-        sheet.show(getParentFragmentManager(), "bitrate_mode_picker");
-    }
-
-    private void showBitrateCustomInput() {
-        int currentMbps = getBitrateCustomValue() / 1000;
-        final String resultKey = "picker_result_bitrate_value";
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (k, b) -> {
-            if (b.containsKey(com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment.RESULT_NUMBER)) {
-                int val = b.getInt(com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment.RESULT_NUMBER);
-                setBitrateCustomValue(val * 1000);
-                setBitrateMode(true);
-                onResolutionOrFramerateChanged();
-                refreshAllValues();
-            }
-        });
-        com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment sheet = com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment
-                .newInstance(
-                        getString(R.string.setting_video_bitrate_title), 1, 200, currentMbps, "1 - 200 Mbps", 3, 100,
-                        getString(R.string.bitrate_info_warning_low), getString(R.string.bitrate_info_warning_high),
-                        resultKey);
-        sheet.show(getParentFragmentManager(), "bitrate_value_input");
-    }
 
     // Removed legacy orientation dialog + feature flag wrapper; always show bottom
     // sheet picker
 
-    private void showOrientationBottomSheet() {
-        // method(showOrientationBottomSheet)-----------
-        ArrayList<com.fadcam.ui.picker.OptionItem> items = new ArrayList<>();
-        items.add(new com.fadcam.ui.picker.OptionItem(SharedPreferencesManager.ORIENTATION_PORTRAIT,
-                getString(R.string.video_orientation_portrait)));
-        items.add(new com.fadcam.ui.picker.OptionItem(SharedPreferencesManager.ORIENTATION_LANDSCAPE,
-                getString(R.string.video_orientation_landscape)));
-        String current = prefs.getVideoOrientation();
-        final String resultKey = "picker_result_orientation";
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (key, bundle) -> {
-            String sel = bundle.getString(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SELECTED_ID);
-            if (sel != null && !sel.equals(current)) {
-                prefs.setVideoOrientation(sel);
-                refreshAllValues();
-            }
-        });
-        com.fadcam.ui.picker.PickerBottomSheetFragment sheet = com.fadcam.ui.picker.PickerBottomSheetFragment
-                .newInstance(
-                        getString(R.string.setting_video_orientation_title), items, current, resultKey);
-        sheet.show(getParentFragmentManager(), "orientation_picker");
-        // method(showOrientationBottomSheet)-----------
-    }
+
 
     // -------- Legacy logic helpers (migrated/adapted) --------
 
@@ -1491,49 +1069,14 @@ public class VideoSettingsFragment extends Fragment {
         return getBitrateMode() ? getBitrateCustomValue() : getDefaultBitrate();
     }
 
-    private void onResolutionOrFramerateChanged() {
-        refreshAllValues();
-    }
+
 
     // Bitrate helper text mirroring thresholds used in dialog (low<3, high>100) but
     // for current value
-    private void updateBitrateHelper(int bitrateKbps, boolean custom) {
-        /* removed */ }
+
 
     // ---- Zoom Ratio Migration ----
-    private void showZoomRatioBottomSheet() {
-        CameraType cam = prefs.getCameraSelection();
-        List<Float> ratios = buildZoomRatioOptions(cam);
-        if (ratios.isEmpty())
-            return;
-        float current = prefs.getSpecificZoomRatio(cam);
-        java.util.ArrayList<com.fadcam.ui.picker.OptionItem> items = new java.util.ArrayList<>();
-        String currentId = String.format(Locale.getDefault(), "%.1f", current);
-        for (Float r : ratios) {
-            items.add(new com.fadcam.ui.picker.OptionItem(String.format(Locale.getDefault(), "%.1f", r),
-                    String.format(Locale.getDefault(), "%.1fx", r)));
-        }
-        final String resultKey = "picker_result_zoom_ratio";
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (k, b) -> {
-            String sel = b.getString(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SELECTED_ID);
-            if (sel != null && !sel.equals(currentId)) {
-                try {
-                    float val = Float.parseFloat(sel);
-                    if (Math.abs(val - current) > 0.001f) {
-                        prefs.setSpecificZoomRatio(cam, val);
-                        refreshAllValues();
-                    }
-                } catch (Exception ignored) {
-                }
-            }
-        });
-        // Create dynamic helper text explaining auto-selection behavior
-        String helper = createZoomHelperText(cam);
-        com.fadcam.ui.picker.PickerBottomSheetFragment sheet = com.fadcam.ui.picker.PickerBottomSheetFragment
-                .newInstance(
-                        getString(R.string.setting_zoom_ratio_title), items, currentId, resultKey, helper);
-        sheet.show(getParentFragmentManager(), "zoom_ratio_picker");
-    }
+
 
     private List<Float> buildZoomRatioOptions(CameraType cam) {
         List<Float> list = new ArrayList<>();
@@ -1615,214 +1158,20 @@ public class VideoSettingsFragment extends Fragment {
         return getString(R.string.maximum_recording_duration_no_limit);
     }
 
-    private void showMaximumRecordingDurationBottomSheet() {
-        // Shared preset list (No limit, 1-30 min, 1-5 h, Custom) with icons.
-        ArrayList<com.fadcam.ui.picker.OptionItem> items =
-                MaximumRecordingDuration.buildOptionItems(getContext());
 
-        final String resultKey = "picker_result_maximum_recording_duration";
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (key, result) -> {
-            String selected = result.getString(
-                    com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SELECTED_ID);
-            if (selected == null) {
-                return;
-            }
-            if (MaximumRecordingDuration.OPTION_CUSTOM.equals(selected)) {
-                showCustomMaximumRecordingDurationBottomSheet();
-                return;
-            }
-            if (prefs.setMaximumRecordingDurationOption(selected)) {
-                refreshAllValues();
-            }
-        });
 
-        com.fadcam.ui.picker.PickerBottomSheetFragment sheet =
-                com.fadcam.ui.picker.PickerBottomSheetFragment.newInstance(
-                        getString(R.string.maximum_recording_duration_title),
-                        items,
-                        prefs.getMaximumRecordingDurationOption(),
-                        resultKey,
-                        getString(R.string.maximum_recording_duration_summary));
-        sheet.show(getParentFragmentManager(), "maximum_recording_duration_picker");
-    }
 
-    private void showCustomMaximumRecordingDurationBottomSheet() {
-        final String resultKey = "picker_result_custom_recording_duration";
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (key, result) -> {
-            if (!result.containsKey(
-                    com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment.RESULT_DURATION_SECONDS)) {
-                return;
-            }
-            int seconds = result.getInt(
-                    com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment.RESULT_DURATION_SECONDS);
-            // 0:00:00 means "no timer" — switch to the no-limit option so the
-            // settings summary stays consistent.
-            if (seconds <= 0) {
-                prefs.setMaximumRecordingDurationOption(MaximumRecordingDuration.OPTION_NO_LIMIT);
-                refreshAllValues();
-            } else if (prefs.setCustomMaximumRecordingDurationSeconds(seconds)) {
-                prefs.setMaximumRecordingDurationOption(MaximumRecordingDuration.OPTION_CUSTOM);
-                refreshAllValues();
-            }
-        });
-
-        com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment sheet =
-                com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment.newTimeInstance(
-                        getString(R.string.maximum_recording_duration_custom_title),
-                        prefs.getCustomMaximumRecordingDurationSeconds(),
-                        resultKey);
-        if (sheet.getArguments() != null) {
-            sheet.getArguments().putString(
-                    com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment.ARG_FOOTER,
-                    getString(R.string.maximum_recording_duration_summary));
-        }
-        sheet.show(getParentFragmentManager());
-    }
 
     // ---- Video Splitting Migration ----
-    private void toggleVideoSplitting() {
-        boolean enabled = prefs.isVideoSplittingEnabled();
-        prefs.setVideoSplittingEnabled(!enabled);
-    }
 
-    private void showVideoSplittingBottomSheet() {
-        // method(showVideoSplittingBottomSheet)-----------
-        boolean enabled = prefs.isVideoSplittingEnabled();
-        int mb = prefs.getVideoSplitSizeMb();
-        String sizeLabel;
-        if (mb == 500)
-            sizeLabel = getString(R.string.video_split_size_500mb);
-        else if (mb == 1024)
-            sizeLabel = getString(R.string.video_split_size_1gb);
-        else if (mb == 2048)
-            sizeLabel = getString(R.string.video_split_size_2gb);
-        else if (mb == 4096)
-            sizeLabel = getString(R.string.video_split_size_4gb);
-        else
-            sizeLabel = getString(R.string.video_split_size_custom_format, mb);
-        java.util.ArrayList<com.fadcam.ui.picker.OptionItem> items = new java.util.ArrayList<>();
-        items.add(new com.fadcam.ui.picker.OptionItem("size", getString(R.string.video_split_change_format, sizeLabel)));
-        final String resultKey = "picker_result_video_split";
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (k, b) -> {
-            if (b.containsKey(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SWITCH_STATE)) {
-                boolean state = b.getBoolean(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SWITCH_STATE);
-                prefs.setVideoSplittingEnabled(state);
-                refreshAllValues();
-            }
-            String sel = b.getString(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SELECTED_ID);
-            if (sel == null)
-                return;
-            if ("size".equals(sel)) {
-                showVideoSplitSizeBottomSheet();
-            }
-        });
-        String helper = getString(R.string.video_splitting_description);
-        java.util.ArrayList<String> dep = new java.util.ArrayList<>();
-        dep.add("size");
-        com.fadcam.ui.picker.PickerBottomSheetFragment sheet = com.fadcam.ui.picker.PickerBottomSheetFragment
-                .newInstanceWithSwitchDependencies(
-                        getString(R.string.video_splitting_title), items, null, resultKey, helper,
-                        getString(R.string.video_splitting_title), enabled, dep);
-        sheet.show(getParentFragmentManager(), "video_splitting_picker");
-        // method(showVideoSplittingBottomSheet)-----------
-    }
 
-    private void updateSplitSizeLabel(TextView label) {
-        if (label == null)
-            return;
-        int mb = prefs.getVideoSplitSizeMb();
-        String sizeLabel;
-        if (mb == 500)
-            sizeLabel = "500 MB";
-        else if (mb == 1024)
-            sizeLabel = "1 GB";
-        else if (mb == 2048)
-            sizeLabel = "2 GB";
-        else if (mb == 4096)
-            sizeLabel = "4 GB";
-        else
-            sizeLabel = "Custom (" + mb + " MB)";
-        label.setText("Current Size: " + sizeLabel);
-    }
 
-    private void showVideoSplitSizeBottomSheet() {
-        // method(showVideoSplitSizeBottomSheet)-----------
-        if (!prefs.isVideoSplittingEnabled())
-            return;
-        final int[] presetMb = { 500, 1024, 2048, 4096, -1 };
-        java.util.ArrayList<com.fadcam.ui.picker.OptionItem> items = new java.util.ArrayList<>();
-        for (int mb : presetMb) {
-            if (mb == -1)
-                items.add(new com.fadcam.ui.picker.OptionItem("custom", "Custom..."));
-            else
-                items.add(new com.fadcam.ui.picker.OptionItem(String.valueOf(mb),
-                        (mb == 1024 ? "1 GB" : mb == 2048 ? "2 GB" : mb == 4096 ? "4 GB" : mb + " MB")));
-        }
-        int current = prefs.getVideoSplitSizeMb();
-        String currentId = null;
-        for (int mb : presetMb) {
-            if (mb == current) {
-                currentId = mb == -1 ? null : String.valueOf(mb);
-                break;
-            }
-        }
-        final String resultKey = "picker_result_video_split_size";
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (k, b) -> {
-            String sel = b.getString(com.fadcam.ui.picker.PickerBottomSheetFragment.BUNDLE_SELECTED_ID);
-            if (sel == null)
-                return;
-            if ("custom".equals(sel)) {
-                showCustomSplitSizeBottomSheet();
-            } else {
-                try {
-                    int mbVal = Integer.parseInt(sel);
-                    prefs.setVideoSplitSizeMb(mbVal);
-                    refreshAllValues();
-                } catch (Exception ignored) {
-                }
-            }
-        });
-        String helper = getString(R.string.video_splitting_description);
-        com.fadcam.ui.picker.PickerBottomSheetFragment sheet = com.fadcam.ui.picker.PickerBottomSheetFragment
-                .newInstance(
-                        getString(R.string.video_splitting_title), items, currentId, resultKey, helper);
-        sheet.show(getParentFragmentManager(), "video_split_size_picker");
-        // method(showVideoSplitSizeBottomSheet)-----------
-    }
 
-    private void showCustomSplitSizeBottomSheet() {
-        // method(showCustomSplitSizeBottomSheet)-----------
-        // Two-column MB | GB wheel — the same pattern as the timer's H:M:S
-        // picker. The result is combined to total MB, so the rest of the
-        // system is untouched.
-        int current = prefs.getVideoSplitSizeMb();
-        if (current == 500 || current == 1024 || current == 2048 || current == 4096)
-            current = 2048; // default for custom
-        final String resultKey = "picker_result_video_split_custom";
-        getParentFragmentManager().setFragmentResultListener(resultKey, this, (k, b) -> {
-            if (b.containsKey(com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment.RESULT_NUMBER)) {
-                int mb = b.getInt(com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment.RESULT_NUMBER);
-                prefs.setVideoSplitSizeMb(mb);
-                refreshAllValues();
-            }
-        });
-        com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment sheet =
-                com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment
-                        .newMbGbInstance(
-                                getString(R.string.video_split_custom_title),
-                                current, resultKey);
-        if (sheet.getArguments() != null) {
-            sheet.getArguments().putBoolean(
-                    com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment.ARG_SHOW_RESET, true);
-            sheet.getArguments().putInt(
-                    com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment.ARG_DEFAULT_VALUE, 2048);
-            sheet.getArguments().putString(
-                    com.fadcam.ui.picker.MaterialNumberPickerBottomSheetFragment.ARG_FOOTER,
-                    getString(R.string.video_split_custom_footer));
-        }
-        sheet.show(getParentFragmentManager(), "video_split_custom_input");
-        // method(showCustomSplitSizeBottomSheet)-----------
-    }
+
+
+
+
+
 
     private CamcorderProfile getCamcorderProfile(CameraType type) {
         try {

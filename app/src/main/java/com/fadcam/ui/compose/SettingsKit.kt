@@ -2,6 +2,8 @@ package com.fadcam.ui.compose
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.ExperimentalLayoutApi
+import androidx.compose.foundation.layout.FlowRow
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -16,6 +18,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilterChip
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.LargeTopAppBar
@@ -147,6 +150,43 @@ fun SliderRow(
                 Text(valueLabel, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.primary)
             }
             Slider(value = v, onValueChange = { v = it }, onValueChangeFinished = { onChange(v) }, valueRange = range, steps = steps)
+        }
+    }
+}
+
+/** Title + a wrapping row of single-choice chips. */
+@OptIn(ExperimentalLayoutApi::class)
+@Composable
+fun <T> ChipRow(title: String, options: List<Pair<T, String>>, selected: T?, enabled: Boolean = true, summary: String? = null, onSelect: (T) -> Unit) {
+    RowCard {
+        Column(Modifier.padding(horizontal = 20.dp, vertical = 14.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+            if (summary != null) Text(summary, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+            FlowRow(Modifier.padding(top = 10.dp), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                options.forEach { (v, label) ->
+                    FilterChip(selected = v == selected, enabled = enabled, onClick = { onSelect(v) }, label = { Text(label) })
+                }
+            }
+        }
+    }
+}
+
+/** Small explanatory paragraph under a group of rows. */
+@Composable
+fun NoteText(text: String) {
+    Text(
+        text, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.onSurfaceVariant,
+        modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+    )
+}
+
+/** Tappable card that opens another page. */
+@Composable
+fun ActionRow(title: String, summary: String? = null, onClick: () -> Unit) {
+    RowCard(Modifier.clickable(onClick = onClick)) {
+        Column(Modifier.padding(horizontal = 20.dp, vertical = 14.dp)) {
+            Text(title, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurface)
+            if (summary != null) Text(summary, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
         }
     }
 }

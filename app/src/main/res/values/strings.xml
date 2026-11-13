@@ -3140,4 +3140,11 @@ For the smoothest playback experience, you can use an external player like VLC. 
     <string name="jc_theme_dynamic_unsupported">Requires Android 12 or newer</string>
     <string name="jc_theme_black">True black</string>
     <string name="jc_theme_black_sub">Pure black backgrounds, saves power on OLED screens</string>
+    <string name="jc_video_sec_camera">Camera</string>
+    <string name="jc_video_sec_quality">Quality</string>
+    <string name="jc_video_sec_recording">Recording</string>
+    <string name="jc_video_bitrate_auto">Automatic bitrate</string>
+    <string name="jc_video_custom">Custom</string>
+    <string name="jc_video_split_size">Part size</string>
+    <string name="jc_video_codec_tip">H.265 (HEVC) needs about half the bitrate of H.264 for the same quality.</string>
 </resources>
