@@ -31,72 +31,27 @@ import java.util.List; // legacy leftover (may not be used)
 public class SecuritySettingsFragment extends Fragment {
 
     private SharedPreferencesManager sharedPreferencesManager;
-    private TextView valueTabLock;
-    private TextView valueCloakRecents;
-    private TextView valuePrivacyBlackMode;
     private Boolean pendingToggleDesiredState; // track attempted switch state for rollback on cancel
+
+    private final com.fadcam.ui.compose.Refresher refresher = new com.fadcam.ui.compose.Refresher();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_settings_security, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        com.fadcam.Utils.attachPressScaleToClickableRows(view);
-        super.onViewCreated(view, savedInstanceState);
         sharedPreferencesManager = SharedPreferencesManager.getInstance(requireContext());
-        valueTabLock = view.findViewById(R.id.value_tab_lock_status);
-    valueCloakRecents = view.findViewById(R.id.value_cloak_recents_status);
-        valuePrivacyBlackMode = view.findViewById(R.id.value_privacy_black_status);
-        refreshAppLockValue();
-    refreshCloakRecentsValue();
-        refreshPrivacyBlackModeValue();
-
-        View back = view.findViewById(R.id.back_button);
-        if (back != null) {
-            back.setOnClickListener(v -> OverlayNavUtil.dismiss(requireActivity()));
-        }
-
-        // Configure row click opens the config dialog (replaces legacy configure button)
-        View rowTabLock = view.findViewById(R.id.row_tab_lock);
-        if (rowTabLock != null) {
-            rowTabLock.setOnClickListener(v -> showAppLockConfigDialog());
-        }
-        View rowCloak = view.findViewById(R.id.row_cloak_recents);
-        if (rowCloak != null) {
-            rowCloak.setOnClickListener(v -> showCloakRecentsConfig());
-        }
-        View rowPrivacyBlack = view.findViewById(R.id.row_privacy_black);
-        if (rowPrivacyBlack != null) {
-            rowPrivacyBlack.setOnClickListener(v -> showPrivacyBlackConfig());
-        }
+        androidx.compose.ui.platform.ComposeView cv = new androidx.compose.ui.platform.ComposeView(requireContext());
+        cv.setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed.INSTANCE);
+        com.fadcam.ui.compose.MoreScreensKt.setSecurityContent(cv, sharedPreferencesManager, refresher,
+                () -> { showAppLockConfigDialog(); return kotlin.Unit.INSTANCE; },
+                () -> { showCloakRecentsConfig(); return kotlin.Unit.INSTANCE; },
+                () -> { showPrivacyBlackConfig(); return kotlin.Unit.INSTANCE; },
+                () -> { OverlayNavUtil.dismiss(requireActivity()); return kotlin.Unit.INSTANCE; });
+        return cv;
     }
 
-    // Removed duplicate manual back handling; centralized via OverlayNavUtil
-
-    private void refreshAppLockValue() {
-        if (valueTabLock != null) {
-            boolean enabled = sharedPreferencesManager.isAppLockEnabled();
-            // Use existing universal enable/disable strings for consistency
-            valueTabLock.setText(enabled ? getString(R.string.universal_enable) : getString(R.string.universal_disable));
-        }
-    }
-
-    private void refreshCloakRecentsValue() {
-        if (valueCloakRecents != null) {
-            boolean enabled = sharedPreferencesManager.isCloakRecentsEnabled();
-            valueCloakRecents.setText(enabled ? getString(R.string.universal_enable) : getString(R.string.universal_disable));
-        }
-    }
-
-    private void refreshPrivacyBlackModeValue() {
-        if (valuePrivacyBlackMode != null) {
-            boolean enabled = sharedPreferencesManager.isPrivacyBlackModeEnabled();
-            valuePrivacyBlackMode.setText(enabled ? getString(R.string.universal_enable) : getString(R.string.universal_disable));
-        }
-    }
+    private void refreshAppLockValue() { refresher.bump(); }
+    private void refreshCloakRecentsValue() { refresher.bump(); }
+    private void refreshPrivacyBlackModeValue() { refresher.bump(); }
 
     // Method to show the AppLock configuration dialog
     private void showAppLockConfigDialog() {

@@ -34,7 +34,7 @@ public class StorageSettingsFragment extends Fragment {
     private static final String TAG = "StorageSettingsFragment";
 
     private SharedPreferencesManager prefs;
-    private TextView valueStorageMode;
+    private final com.fadcam.ui.compose.Refresher refresher = new com.fadcam.ui.compose.Refresher();
 
     private ActivityResultLauncher<Uri> openDocumentTreeLauncher;
 
@@ -42,7 +42,12 @@ public class StorageSettingsFragment extends Fragment {
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_settings_storage, container, false);
+        androidx.compose.ui.platform.ComposeView cv = new androidx.compose.ui.platform.ComposeView(requireContext());
+        cv.setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed.INSTANCE);
+        com.fadcam.ui.compose.MoreScreensKt.setStorageContent(cv, refresher, () -> currentSummary(),
+                () -> { showStorageOptionsSheet(); return kotlin.Unit.INSTANCE; },
+                () -> { OverlayNavUtil.dismiss(requireActivity()); return kotlin.Unit.INSTANCE; });
+        return cv;
     }
 
     @Override
@@ -76,31 +81,16 @@ public class StorageSettingsFragment extends Fragment {
         });
     }
 
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        com.fadcam.Utils.attachPressScaleToClickableRows(view);
-        super.onViewCreated(view, savedInstanceState);
-        valueStorageMode = view.findViewById(R.id.value_storage_mode);
-        view.findViewById(R.id.row_storage_mode).setOnClickListener(v -> showStorageOptionsSheet());
-        View back = view.findViewById(R.id.back_button);
-        if (back != null) {
-            back.setOnClickListener(v -> OverlayNavUtil.dismiss(requireActivity()));
-        }
-        refreshValue();
-    }
-
-    // Removed duplicate manual back handling; centralized via OverlayNavUtil
-
-    private void refreshValue() {
+    private String currentSummary() {
+        if (getContext() == null) return "";
         String mode = prefs.getStorageMode();
         if (SharedPreferencesManager.STORAGE_MODE_CUSTOM.equals(mode)) {
-            String uri = prefs.getCustomStorageUri();
-            String label = buildDisplayPath(uri);
-            valueStorageMode.setText(getString(R.string.storage_value_custom_prefix) + " " + label);
-        } else {
-            valueStorageMode.setText(getString(R.string.storage_value_internal));
+            return getString(R.string.storage_value_custom_prefix) + " " + buildDisplayPath(prefs.getCustomStorageUri());
         }
+        return getString(R.string.storage_value_internal);
     }
+
+    private void refreshValue() { refresher.bump(); }
 
     private void showStorageOptionsSheet() {
         final String rk = "picker_result_storage";

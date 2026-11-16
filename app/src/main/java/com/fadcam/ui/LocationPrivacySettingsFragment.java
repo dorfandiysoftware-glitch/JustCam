@@ -31,38 +31,29 @@ import com.fadcam.SharedPreferencesManager;
 public class LocationPrivacySettingsFragment extends Fragment {
 
     private SharedPreferencesManager prefs;
-    private TextView valueEmbed;
     private LocationHelper locationHelper; // start/stop as in legacy
 
     private ActivityResultLauncher<String> permissionLauncher;
     private Runnable pendingGrantAction;
 
+    private com.fadcam.ui.compose.Refresher refresher = new com.fadcam.ui.compose.Refresher();
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
-        return inflater.inflate(R.layout.fragment_settings_location_privacy, container, false);
-    }
-
-    @Override
-    public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
-        com.fadcam.Utils.attachPressScaleToClickableRows(view);
-        super.onViewCreated(view, savedInstanceState);
         prefs = SharedPreferencesManager.getInstance(requireContext());
-        valueEmbed = view.findViewById(R.id.value_location_embed);
-        view.findViewById(R.id.row_location_embed).setOnClickListener(v -> toggleLocationEmbed());
-    View back = view.findViewById(R.id.back_button);
-    if(back!=null){ back.setOnClickListener(v -> OverlayNavUtil.dismiss(requireActivity())); }
         permissionLauncher = registerForActivityResult(new ActivityResultContracts.RequestPermission(), granted -> {
             if(granted){ onPermissionGrantedPostRequest(); } else { onPermissionDeniedPostRequest(); }
         });
-        refreshValues();
+        androidx.compose.ui.platform.ComposeView cv = new androidx.compose.ui.platform.ComposeView(requireContext());
+        cv.setViewCompositionStrategy(androidx.compose.ui.platform.ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed.INSTANCE);
+        com.fadcam.ui.compose.MoreScreensKt.setLocationContent(cv, prefs, refresher,
+                () -> { toggleLocationEmbed(); return kotlin.Unit.INSTANCE; },
+                () -> { OverlayNavUtil.dismiss(requireActivity()); return kotlin.Unit.INSTANCE; });
+        return cv;
     }
 
-    // Removed duplicate manual back handling; centralized via OverlayNavUtil
-
-    private void refreshValues(){
-        valueEmbed.setText(prefs.isLocationEmbeddingEnabled() ? getString(R.string.setting_enabled) : getString(R.string.setting_disabled));
-    }
+    private void refreshValues(){ refresher.bump(); }
 
     private void toggleLocationEmbed(){
         boolean currently = prefs.isLocationEmbeddingEnabled();
